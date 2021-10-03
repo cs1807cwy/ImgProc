@@ -60,4 +60,5 @@ public:
 	int GetColorBits() { return Utils::GetColorBits(this->pFileBuf); }
 
 	CString GetFilePath();
+	afx_msg void OnImageprocessingSavetonewbmpfile();
 };

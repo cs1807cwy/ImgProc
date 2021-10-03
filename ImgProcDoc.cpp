@@ -27,6 +27,7 @@
 IMPLEMENT_DYNCREATE(CImgProcDoc, CDocument)
 
 BEGIN_MESSAGE_MAP(CImgProcDoc, CDocument)
+	ON_COMMAND(ID_IMAGEPROCESSING_SAVETONEWBMPFILE, &CImgProcDoc::OnImageprocessingSavetonewbmpfile)
 END_MESSAGE_MAP()
 
 
@@ -172,11 +173,13 @@ void CImgProcDoc::Dump(CDumpContext& dc) const
 
 // CImgProcDoc 命令
 
-
-
-
-
 CString CImgProcDoc::GetFilePath()
 {
 	return this->fileName;
+}
+
+void CImgProcDoc::OnImageprocessingSavetonewbmpfile()
+{
+	// TODO: 在此添加命令处理程序代码
+	OnSaveDocument(NULL);
 }

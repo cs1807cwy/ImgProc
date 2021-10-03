@@ -29,6 +29,7 @@ BEGIN_MESSAGE_MAP(CImgProcApp, CWinApp)
 	//ON_COMMAND(ID_FILE_OPEN, &CWinApp::OnFileOpen)
 	// 标准打印设置命令
 	//ON_COMMAND(ID_FILE_PRINT_SETUP, &CWinApp::OnFilePrintSetup)
+	ON_COMMAND(ID_IMAGEPROCESSING_OPENBMPFILE, &CImgProcApp::OnImageprocessingOpenbmpfile)
 END_MESSAGE_MAP()
 
 
@@ -206,3 +207,8 @@ void CImgProcApp::OnFileOpen()
 
 }
 
+void CImgProcApp::OnImageprocessingOpenbmpfile()
+{
+	// TODO: 在此添加命令处理程序代码
+	this->OnFileOpen();
+}

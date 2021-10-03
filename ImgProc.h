@@ -29,6 +29,7 @@ public:
 	DECLARE_MESSAGE_MAP()
 	afx_msg void OnAppAbout();
 	afx_msg void OnFileOpen();
+	afx_msg void OnImageprocessingOpenbmpfile();
 };
 
 extern CImgProcApp theApp;
