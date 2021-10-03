@@ -17,6 +17,8 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+#include "ChildFrm.h"
+#include "MainFrm.h"
 
 
 // CImgProcView
@@ -28,6 +30,9 @@ BEGIN_MESSAGE_MAP(CImgProcView, CView)
 	ON_COMMAND(ID_FILE_PRINT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CView::OnFilePrintPreview)
+	ON_WM_MOUSEMOVE()
+	ON_WM_DESTROY()
+	ON_WM_MOUSELEAVE()
 END_MESSAGE_MAP()
 
 // CImgProcView 构造/析构
@@ -48,6 +53,27 @@ BOOL CImgProcView::PreCreateWindow(CREATESTRUCT& cs)
 	//  CREATESTRUCT cs 来修改窗口类或样式
 
 	return CView::PreCreateWindow(cs);
+}
+
+// 当视图建立后的第一帧更新
+// 设置窗口绘图区大小与图片大小一致
+void CImgProcView::OnInitialUpdate()
+{
+	CView::OnInitialUpdate();
+
+	// TODO: Add your specialized code here and/or call the base class
+	CImgProcDoc* pDoc = GetDocument();
+
+	// note: 修正窗口位置、大小
+	// 从ChildFrame获取窗口创建时使用的风格描述
+	CREATESTRUCT createStyle = ((CChildFrame*)GetParentFrame())->GetWndStyle();
+	CRect rect;
+	rect.SetRect(0, 0, pDoc->GetWidth(), pDoc->GetHeight());	// 根据BMP文件修正右端、底端偏移
+	// 根据窗体风格、用户区修正矩形，修正窗体
+	AdjustWindowRectEx(&rect, createStyle.style, FALSE, createStyle.dwExStyle);
+	// 窗体左上顶点修正到(0,0)
+	rect.MoveToXY(0, 0);
+	GetParentFrame()->MoveWindow(&rect);
 }
 
 // CImgProcView 绘图
@@ -108,3 +134,72 @@ CImgProcDoc* CImgProcView::GetDocument() const // 非调试版本是内联的
 
 
 // CImgProcView 消息处理程序
+
+
+void CImgProcView::OnMouseMove(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	if (!m_bTracked)
+	{
+		TRACKMOUSEEVENT tme;
+		tme.cbSize = sizeof(tme);
+		tme.dwFlags = TME_LEAVE;
+		tme.dwHoverTime = 0;
+		tme.hwndTrack = m_hWnd;
+		TrackMouseEvent(&tme);	// 调用鼠标事件跟踪函数
+
+		m_bTracked = TRUE;		// 标记鼠标进入窗口
+	}
+
+	// note: 跟踪鼠标位置像素信息
+	CString str, title; CImgProcDoc* pDoc;
+	RGBQUAD color; bool isGrey;
+	pDoc = GetDocument();
+	Utils::GetPixel(pDoc->GetFileBuf(), point.x, point.y, &color, &isGrey);
+
+	if (isGrey)
+	{
+		str.Format("%s : Loc(%d,%d)-->Grey(%#X)", pDoc->GetTitle(), point.x, point.y, color.rgbRed);
+	}
+	else
+	{
+		str.Format("%s : Loc(%d,%d)-->RGB(%#X%X%X)", pDoc->GetTitle(), point.x, point.y, color.rgbRed, color.rgbGreen, color.rgbBlue);
+	}
+	
+	CStatusBar* pStatus;
+	pStatus = (CStatusBar*)AfxGetApp()->m_pMainWnd->GetDescendantWindow(ID_VIEW_STATUS_BAR);
+	pStatus->SetPaneText(0, str);
+
+	CView::OnMouseMove(nFlags, point);
+}
+
+
+
+void CImgProcView::OnDestroy()
+{
+	CView::OnDestroy();
+
+	// TODO: 在此处添加消息处理程序代码
+
+	// 重设状态栏提示
+	CStatusBar* pStatus; CString str;
+	pStatus = (CStatusBar*)AfxGetApp()->m_pMainWnd->GetDescendantWindow(ID_VIEW_STATUS_BAR);
+	str.LoadString(AFX_IDS_IDLEMESSAGE);
+	pStatus->SetPaneText(0, str);
+}
+
+
+void CImgProcView::OnMouseLeave()
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+
+	m_bTracked = FALSE;		// 标记鼠标离开窗口
+
+	// 重设状态栏提示
+	CStatusBar* pStatus; CString str;
+	pStatus = (CStatusBar*)AfxGetApp()->m_pMainWnd->GetDescendantWindow(ID_VIEW_STATUS_BAR);
+	str.LoadString(AFX_IDS_IDLEMESSAGE);
+	pStatus->SetPaneText(0, str);
+
+	CView::OnMouseLeave();
+}

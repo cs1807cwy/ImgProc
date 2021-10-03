@@ -11,6 +11,8 @@ protected: // 仅从序列化创建
 	CImgProcView() noexcept;
 	DECLARE_DYNCREATE(CImgProcView)
 
+	BOOL m_bTracked = FALSE;	// 鼠标窗口跟踪判据
+
 // 特性
 public:
 	CImgProcDoc* GetDocument() const;
@@ -22,6 +24,8 @@ public:
 public:
 	virtual void OnDraw(CDC* pDC);  // 重写以绘制该视图
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+	virtual void OnInitialUpdate();
+
 protected:
 	virtual BOOL OnPreparePrinting(CPrintInfo* pInfo);
 	virtual void OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo);
@@ -40,6 +44,10 @@ protected:
 // 生成的消息映射函数
 protected:
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg void OnDestroy();
+	afx_msg void OnMouseLeave();
 };
 
 #ifndef _DEBUG  // ImgProcView.cpp 中的调试版本

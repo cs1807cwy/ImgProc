@@ -37,6 +37,12 @@ BOOL CChildFrame::PreCreateWindow(CREATESTRUCT& cs)
 	if( !CMDIChildWnd::PreCreateWindow(cs) )
 		return FALSE;
 
+	cs.x = 0;	// 窗体左上角对齐
+	cs.y = 0;
+	cs.style &= ~WS_MINIMIZEBOX;	// 禁止窗口最小化
+	cs.style &= ~WS_MAXIMIZEBOX;	// 禁止窗口最大化
+	cs.style &= ~WS_THICKFRAME;		// 禁止修改窗体大小
+	this->m_wndStyle = cs;
 	return TRUE;
 }
 

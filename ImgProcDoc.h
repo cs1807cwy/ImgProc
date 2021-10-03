@@ -4,7 +4,7 @@
 
 
 #pragma once
-
+#include "Utils.h"
 
 class CImgProcDoc : public CDocument
 {
@@ -16,6 +16,7 @@ protected:
 // 特性
 public:
 	char* pFileBuf;
+	CString fileName;
 // 操作
 public:
 
@@ -24,6 +25,7 @@ public:
 	virtual BOOL OnNewDocument();
 	virtual BOOL OnOpenDocument(LPCTSTR lpszPathName);
 	virtual BOOL OnSaveDocument(LPCTSTR lpszPathName);
+	virtual void OnCloseDocument();
 	virtual void Serialize(CArchive& ar);
 #ifdef SHARED_HANDLERS
 	virtual void InitializeSearchContent();
@@ -50,6 +52,12 @@ protected:
 #endif // SHARED_HANDLERS
 
 public:
-	char* GetFileBuf() { return this->pFileBuf; }
 
+	char* GetFileBuf() { return this->pFileBuf; }
+	int GetWidth() { return Utils::GetImageWidth(this->pFileBuf); }
+	int GetHeight() { return Utils::GetImageHeight(this->pFileBuf); }
+	int GetNBytesPerRow() { return Utils::GetWidthBytes(this->pFileBuf); }
+	int GetColorBits() { return Utils::GetColorBits(this->pFileBuf); }
+
+	CString GetFilePath();
 };

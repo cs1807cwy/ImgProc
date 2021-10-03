@@ -126,7 +126,7 @@ BOOL CImgProcApp::InitInstance()
 	CCommandLineInfo cmdInfo;
 	ParseCommandLine(cmdInfo);
 
-	// 启动时不自动新建窗口
+	// note: 启动时不自动新建窗口
 	cmdInfo.m_nShellCommand = CCommandLineInfo::FileNothing;
 
 
@@ -201,6 +201,7 @@ void CImgProcApp::OnFileOpen()
 	// 检查文件类型是否合法
 	char * pFileBuf = Utils::OpenBMPfile(dlg.GetPathName());
 	if (pFileBuf == NULL) return;
+	delete[] pFileBuf; pFileBuf = NULL;
 	this->OpenDocumentFile(dlg.GetPathName());
 
 }

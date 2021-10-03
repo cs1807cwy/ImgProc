@@ -13,8 +13,9 @@ public:
 // 特性
 protected:
 	CSplitterWnd m_wndSplitter;
+	CREATESTRUCT m_wndStyle;
 public:
-
+	CREATESTRUCT GetWndStyle() { return m_wndStyle; }
 // 操作
 public:
 

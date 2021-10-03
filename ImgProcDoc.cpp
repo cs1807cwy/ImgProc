@@ -18,6 +18,9 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+#include "ImgProcView.h"
+#include "MainFrm.h"
+#include "ChildFrm.h"
 
 // CImgProcDoc
 
@@ -32,18 +35,22 @@ END_MESSAGE_MAP()
 CImgProcDoc::CImgProcDoc() noexcept
 {
 	// TODO: 在此添加一次性构造代码
-	pFileBuf = NULL;
+	pFileBuf = nullptr;
 }
 
 CImgProcDoc::~CImgProcDoc()
 {
+	if (pFileBuf)
+	{
+		delete[] pFileBuf;
+		pFileBuf = nullptr;
+	}
 }
 
 BOOL CImgProcDoc::OnNewDocument()
 {
 	if (!CDocument::OnNewDocument())
 		return FALSE;
-
 	// TODO: 在此添加重新初始化代码
 	// (SDI 文档将重用该文档)
 	
@@ -53,7 +60,9 @@ BOOL CImgProcDoc::OnNewDocument()
 BOOL CImgProcDoc::OnOpenDocument(LPCTSTR lpszPathName)
 {
 	pFileBuf = Utils::OpenBMPfile(lpszPathName);
-	//UpdateAllViews(NULL);
+	fileName = lpszPathName;
+	UpdateAllViews(NULL);
+
 	return TRUE;
 }
 
@@ -67,6 +76,16 @@ BOOL CImgProcDoc::OnSaveDocument(LPCTSTR lpszPathName)
 	//TRACE1("OnFileSave() invoked -> %s\n", tmps);
 	Utils::SaveDIB(this->pFileBuf, tmps);
 	return TRUE;
+}
+
+void CImgProcDoc::OnCloseDocument()
+{
+	if (pFileBuf) 
+	{
+		delete[] pFileBuf; 
+		pFileBuf = nullptr;
+	}
+	CDocument::OnCloseDocument();
 }
 
 // CImgProcDoc 序列化
@@ -156,3 +175,8 @@ void CImgProcDoc::Dump(CDumpContext& dc) const
 
 
 
+
+CString CImgProcDoc::GetFilePath()
+{
+	return this->fileName;
+}
