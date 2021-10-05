@@ -5,6 +5,7 @@
 
 #pragma once
 #include "Utils.h"
+#include <vector>
 
 class CImgProcDoc : public CDocument
 {
@@ -15,10 +16,19 @@ protected:
 
 // 特性
 public:
-	char* pFileBuf;
+	BITMAPFILEHEADER bmpHead;
+	BITMAPINFOHEADER bmpInfo;
+	std::vector<RGBQUAD> palette; // note: B G R A
+	std::vector<BYTE> pixelData;
 	CString fileName;
 // 操作
 public:
+
+protected:
+	bool OpenBMPfile(CString strBmpFile);
+	bool SaveDIB(CString strBmpFile);
+	void DisplayHeaderMessage();
+
 
 // 重写
 public:
@@ -53,12 +63,24 @@ protected:
 
 public:
 
-	char* GetFileBuf() { return this->pFileBuf; }
-	int GetWidth() { return Utils::GetImageWidth(this->pFileBuf); }
-	int GetHeight() { return Utils::GetImageHeight(this->pFileBuf); }
-	int GetNBytesPerRow() { return Utils::GetWidthBytes(this->pFileBuf); }
-	int GetColorBits() { return Utils::GetColorBits(this->pFileBuf); }
+	BITMAPFILEHEADER* GetFileHeader() { return &this->bmpHead; }
+	BITMAPINFOHEADER* GetInfoHeader() { return &this->bmpInfo; }
+	std::vector<RGBQUAD>& GetPalette() { return this->palette; }
+	std::vector<BYTE>& GetImageBuf() { return this->pixelData; }
+	LONG GetImageWidth() { return this->bmpInfo.biWidth; }
+	LONG GetImageHeight() { return this->bmpInfo.biHeight; }
+	LONG GetWidthBytes()
+	{
+		LONG nBytesPerRow = 4 * ((this->bmpInfo.biWidth * this->bmpInfo.biBitCount + 31) / 32);
+		return (nBytesPerRow);
+	}
+	WORD GetColorBits() { return this->bmpInfo.biBitCount; }
+	DWORD GetUsedColors() { return this->bmpInfo.biClrUsed; }
 
-	CString GetFilePath();
+	CString GetFilePath() { return this->fileName; }
+	long GetPixel(int x, int y, RGBQUAD rgb[1], bool bGray[1]);
+	void SetPixel(int x, int y, RGBQUAD rgb, int width = 1, int height = 1);
+
 	afx_msg void OnImageprocessingSavetonewbmpfile();
+	afx_msg void OnImageprocessingDispplayfileheader();
 };

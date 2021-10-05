@@ -183,7 +183,11 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CGETPIXELDLG.h" />
     <ClInclude Include="ChildFrm.h" />
+    <ClInclude Include="CSETPIXELDLG.h" />
+    <ClInclude Include="CSETPIXELGREYDLG.h" />
+    <ClInclude Include="Dialogs.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="ImgProc.h" />
     <ClInclude Include="ImgProcDoc.h" />
@@ -195,7 +199,10 @@
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CGETPIXELDLG.cpp" />
     <ClCompile Include="ChildFrm.cpp" />
+    <ClCompile Include="CSETPIXELDLG.cpp" />
+    <ClCompile Include="CSETPIXELGREYDLG.cpp" />
     <ClCompile Include="ImgProc.cpp" />
     <ClCompile Include="ImgProcDoc.cpp" />
     <ClCompile Include="ImgProcView.cpp" />

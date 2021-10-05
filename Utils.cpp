@@ -134,56 +134,56 @@ long Utils::GetWidthBytes(char* pFileBuffer)
 ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
 
-void Utils::DisplayHeaderMessage(char* pBmpFileBuf)
-{
-	BITMAPFILEHEADER* pBmpHead = GetDIBHEADER(pBmpFileBuf);
-	BITMAPINFOHEADER* pBmpInfo = GetDIBINFO(pBmpFileBuf);
-	/**/
-	char PromptMsg[2048];
-	sprintf(PromptMsg, "\
-bfType (file type) = %4.4X \n\
-bfSize (file length) = %ld \n\
-bfOffBits (offset of bitmap data in bytes) = %ld \n\
-biSize (header structure length should be 40 or 0x28) = %ld \n\
-biWidth (image width)  = %ld \n\
-biHeight (image height) = %ld \n\
-biPlanes (must be eaual to 1) = %u \n\
-biBitCount (color/pixel bits) = %u \n\
-biCompression (compressed?) = %ld \n\
-biSizeImage (length of bitmap data in bytes must be the times of 4) = %ld \n\
-biXPelsPerMeter (horizontal resolution of target device in pixels/metre) = %ld \n\
-biYPelsPerMeter (vertical resolution of target device in pixels/metre) = %ld \n\
-biColorUsed (number of colors used in bitmap,0=2**biBitCount) = %ld \n\
-biColorImportant (number of important colors,0=all colors are important) = %ld \n\
-\nThe following is additional information: \n\
-Bytes per row in bitmap (nBytesPerRow) = %ld \n\
-Total bytes of bitmap (nImageSizeInByte) = %ld \n\
-Actual pixels per row in bitmap (nPixelsPerRow) = %ld \n\
-Total rows of bitmap (nTotalRows) = %ld \n\
-Total colors (2**biBitCount)(nTotalColors) = %ld \n\
-Used colors (biColorUsed)(nUsedColors) = %ld ",
-pBmpHead->bfType,
-pBmpHead->bfSize,
-pBmpHead->bfOffBits,
-pBmpInfo->biSize,
-pBmpInfo->biWidth,
-pBmpInfo->biHeight,
-pBmpInfo->biPlanes,
-pBmpInfo->biBitCount,
-pBmpInfo->biCompression,
-pBmpInfo->biSizeImage,
-pBmpInfo->biXPelsPerMeter,
-pBmpInfo->biYPelsPerMeter,
-pBmpInfo->biClrUsed,
-pBmpInfo->biClrImportant,
-GetWidthBytes(pBmpFileBuf),
-GetWidthBytes(pBmpFileBuf) * GetImageHeight(pBmpFileBuf),
-GetImageWidth(pBmpFileBuf),
-GetImageHeight(pBmpFileBuf),
-1 << GetColorBits(pBmpFileBuf),
-GetUsedColors(pBmpFileBuf));
-	AfxMessageBox(PromptMsg);
-}
+//void Utils::DisplayHeaderMessage(char* pBmpFileBuf)
+//{
+//	BITMAPFILEHEADER* pBmpHead = GetDIBHEADER(pBmpFileBuf);
+//	BITMAPINFOHEADER* pBmpInfo = GetDIBINFO(pBmpFileBuf);
+//	/**/
+//	char PromptMsg[2048];
+//	sprintf(PromptMsg, "\
+//bfType (file type) = %4.4X \n\
+//bfSize (file length) = %ld \n\
+//bfOffBits (offset of bitmap data in bytes) = %ld \n\
+//biSize (header structure length should be 40 or 0x28) = %ld \n\
+//biWidth (image width)  = %ld \n\
+//biHeight (image height) = %ld \n\
+//biPlanes (must be eaual to 1) = %u \n\
+//biBitCount (color/pixel bits) = %u \n\
+//biCompression (compressed?) = %ld \n\
+//biSizeImage (length of bitmap data in bytes must be the times of 4) = %ld \n\
+//biXPelsPerMeter (horizontal resolution of target device in pixels/metre) = %ld \n\
+//biYPelsPerMeter (vertical resolution of target device in pixels/metre) = %ld \n\
+//biColorUsed (number of colors used in bitmap,0=2**biBitCount) = %ld \n\
+//biColorImportant (number of important colors,0=all colors are important) = %ld \n\
+//\nThe following is additional information: \n\
+//Bytes per row in bitmap (nBytesPerRow) = %ld \n\
+//Total bytes of bitmap (nImageSizeInByte) = %ld \n\
+//Actual pixels per row in bitmap (nPixelsPerRow) = %ld \n\
+//Total rows of bitmap (nTotalRows) = %ld \n\
+//Total colors (2**biBitCount)(nTotalColors) = %ld \n\
+//Used colors (biColorUsed)(nUsedColors) = %ld ",
+//pBmpHead->bfType,
+//pBmpHead->bfSize,
+//pBmpHead->bfOffBits,
+//pBmpInfo->biSize,
+//pBmpInfo->biWidth,
+//pBmpInfo->biHeight,
+//pBmpInfo->biPlanes,
+//pBmpInfo->biBitCount,
+//pBmpInfo->biCompression,
+//pBmpInfo->biSizeImage,
+//pBmpInfo->biXPelsPerMeter,
+//pBmpInfo->biYPelsPerMeter,
+//pBmpInfo->biClrUsed,
+//pBmpInfo->biClrImportant,
+//GetWidthBytes(pBmpFileBuf),
+//GetWidthBytes(pBmpFileBuf) * GetImageHeight(pBmpFileBuf),
+//GetImageWidth(pBmpFileBuf),
+//GetImageHeight(pBmpFileBuf),
+//1 << GetColorBits(pBmpFileBuf),
+//GetUsedColors(pBmpFileBuf));
+//	AfxMessageBox(PromptMsg);
+//}
 
 
 //Mode = 0, normal display

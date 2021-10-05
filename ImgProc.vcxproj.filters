@@ -45,6 +45,18 @@
     <ClInclude Include="Utils.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="CGETPIXELDLG.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Dialogs.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CSETPIXELDLG.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CSETPIXELGREYDLG.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ImgProc.cpp">
@@ -66,6 +78,15 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Utils.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CGETPIXELDLG.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CSETPIXELDLG.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CSETPIXELGREYDLG.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

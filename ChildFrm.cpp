@@ -17,6 +17,7 @@
 IMPLEMENT_DYNCREATE(CChildFrame, CMDIChildWnd)
 
 BEGIN_MESSAGE_MAP(CChildFrame, CMDIChildWnd)
+	ON_WM_NCHITTEST()
 END_MESSAGE_MAP()
 
 // CChildFrame 构造/析构
@@ -61,3 +62,18 @@ void CChildFrame::Dump(CDumpContext& dc) const
 #endif //_DEBUG
 
 // CChildFrame 消息处理程序
+
+
+LRESULT CChildFrame::OnNcHitTest(CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	CRect movableRect, wndRect;
+	GetWindowRect(&wndRect);
+	GetClientRect(&movableRect);
+	ClientToScreen(&movableRect);
+	movableRect.left = wndRect.left;
+	movableRect.right = wndRect.right;
+	movableRect.bottom = wndRect.bottom;
+
+	return movableRect.PtInRect(point) ? HTCAPTION : CMDIChildWnd::OnNcHitTest(point);
+}

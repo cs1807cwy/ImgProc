@@ -13,6 +13,9 @@ protected: // 仅从序列化创建
 
 	BOOL m_bTracked = FALSE;	// 鼠标窗口跟踪判据
 
+	void DisplayImage(CDC* pDC, int disp_xL, int disp_yL, int disp_Width, int disp_Height, int mode);
+	void DisplayPalette();
+
 // 特性
 public:
 	CImgProcDoc* GetDocument() const;
@@ -48,6 +51,10 @@ public:
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnDestroy();
 	afx_msg void OnMouseLeave();
+	afx_msg void OnUpdateInspectionPalette(CCmdUI* pCmdUI);
+	afx_msg void OnInspectionPalette();
+	afx_msg void OnImageprocessingGetpixelvalue();
+	afx_msg void OnImageprocessingSetpixelvalue();
 };
 
 #ifndef _DEBUG  // ImgProcView.cpp 中的调试版本
