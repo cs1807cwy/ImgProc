@@ -8,7 +8,7 @@
 #endif
 
 #include "resource.h"       // 主符号
-
+#include "ImgProcDoc.h"
 
 // CImgProcApp:
 // 有关此类的实现，请参阅 ImgProc.cpp
@@ -19,11 +19,15 @@ class CImgProcApp : public CWinApp
 	
 public:
 	CImgProcApp() noexcept;
+	CImgProcDoc transDoc;
 
 // 重写
 public:
 	virtual BOOL InitInstance();
 	virtual int ExitInstance();
+
+	void ManualFileNew();
+	CImgProcDoc& GetTransDoc() { return this->transDoc; }
 
 // 实现
 	DECLARE_MESSAGE_MAP()

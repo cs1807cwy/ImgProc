@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include "ImgProcDoc.h"
 
 class CMainFrame : public CMDIFrameWnd
 {

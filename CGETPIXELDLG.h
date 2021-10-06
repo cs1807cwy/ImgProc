@@ -19,6 +19,7 @@ public:
 	void SetEditColorRGB(RGBQUAD color);
 	void SetEditColorNA();
 	void ProcCapture();
+	void OnPaint();
 
 // 对话框数据
 #ifdef AFX_DESIGN_TIME
@@ -33,6 +34,7 @@ public:
 	afx_msg void OnBnClickedCapture();
 	CButton m_btn_capture;
 	CButton m_btn_return;
+	CStatic m_grey_val;
 	CEdit m_edit_x;
 	CEdit m_edit_y;
 	CEdit m_edit_r;
@@ -92,4 +94,6 @@ public:
 	afx_msg void OnStnClickedGetpixelPicture23();
 	afx_msg void OnStnClickedGetpixelPicture24();
 	afx_msg void OnStnClickedGetpixelPicture25();
+	
+	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 };

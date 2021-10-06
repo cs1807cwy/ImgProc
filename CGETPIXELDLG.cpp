@@ -38,6 +38,7 @@ CGETPIXELDLG::~CGETPIXELDLG()
 {
 }
 
+// note: clr均为索引后的颜色 或 RGB24
 void CGETPIXELDLG::FillInspectWnd(const std::vector<RGBQUAD>& clrMat5x5, RGBQUAD clrFrame, RGBQUAD clrFocusFrame, WORD focusWidth)
 {
 	for (int y = 0; y < 5; ++y)
@@ -55,7 +56,7 @@ void CGETPIXELDLG::FillInspectWnd(const std::vector<RGBQUAD>& clrMat5x5, RGBQUAD
 				int rectWidth = prect.Width();
 				int rectHeight = prect.Height();
 
-				// 16x16交替颜色填充
+				// 2x2交替颜色填充
 				for (int ty = 0; ty < 2; ++ty)
 				{
 					for (int tx = 0; tx < 2; ++tx)
@@ -107,22 +108,38 @@ void CGETPIXELDLG::FillInspectWnd(const std::vector<RGBQUAD>& clrMat5x5, RGBQUAD
 	}
 }
 
+// note: color 是未索引的颜色
 void CGETPIXELDLG::SetEditColorRGB(RGBQUAD color)
 {
 	CString strClr;
-	strClr.Format(_T("%hu"), color.rgbRed);
-	m_edit_r.SetWindowText(strClr);
-	strClr.Format(_T("%hu"), color.rgbGreen);
-	m_edit_g.SetWindowText(strClr);
-	strClr.Format(_T("%hu"), color.rgbBlue);
-	m_edit_b.SetWindowText(strClr);
+	CImgProcDoc* pDoc = (CImgProcDoc*)((CMainFrame*)AfxGetMainWnd())->MDIGetActive()->GetActiveView()->GetDocument();
+
+	// note: 索引颜色
+	if (pDoc->GetColorBits() == 8)
+	{
+		// 灰度值写入中心块
+		CString sG; sG.Format(_T("%hhu"), color.rgbRed);
+		this->m_grey_val.SetWindowText(sG);
+		// 从调色板索引RGB颜色
+		color = pDoc->MapColor(color);
+	}
+	// note: RGB颜色
+	else { this->m_grey_val.SetWindowText(_T("")); } // 不显示灰度值
+
+	strClr.Format(_T("%hhu"), color.rgbRed);
+	this->m_edit_r.SetWindowText(strClr);
+	strClr.Format(_T("%hhu"), color.rgbGreen);
+	this->m_edit_g.SetWindowText(strClr);
+	strClr.Format(_T("%hhu"), color.rgbBlue);
+	this->m_edit_b.SetWindowText(strClr);
 }
 
 void CGETPIXELDLG::SetEditColorNA()
 {
-	m_edit_r.SetWindowText(_T("NA"));
-	m_edit_g.SetWindowText(_T("NA"));
-	m_edit_b.SetWindowText(_T("NA"));
+	this->m_grey_val.SetWindowText(_T("NA"));
+	this->m_edit_r.SetWindowText(_T("NA"));
+	this->m_edit_g.SetWindowText(_T("NA"));
+	this->m_edit_b.SetWindowText(_T("NA"));
 }
 
 void CGETPIXELDLG::ProcCapture()
@@ -158,6 +175,8 @@ void CGETPIXELDLG::ProcCapture()
 			if (pos_y + y >= 0 && pos_y + y < imgHeight && pos_x + x >= 0 && pos_x + x < imgWidth)
 			{
 				RGBQUAD tClr; pDoc->GetPixel(pos_x + x, pos_y + y, &tClr, nullptr);
+				// 索引颜色
+				tClr = pDoc->MapColor(tClr);
 				tClr.rgbReserved = (BYTE)255;
 				clrMat5x5.push_back(tClr);
 			}
@@ -181,7 +200,6 @@ void CGETPIXELDLG::ProcCapture()
 	}
 	//this->UpdateWindow();
 }
-
 
 void CGETPIXELDLG::DoDataExchange(CDataExchange* pDX)
 {
@@ -220,10 +238,12 @@ void CGETPIXELDLG::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_GETPIXEL_PICTURE25, m_pic_44);
 	DDX_Control(pDX, IDC_GETPIXEL_STATIC_COORDX, m_coordx);
 	DDX_Control(pDX, IDC_GETPIXEL_STATIC_COORDY, m_coordy);
+	DDX_Control(pDX, IDC_GETPIXEL_STATIC_GREYVAL, m_grey_val);
 }
 
 
 BEGIN_MESSAGE_MAP(CGETPIXELDLG, CDialogEx)
+	ON_WM_PAINT()
 	ON_BN_CLICKED(IDCAPTURE, &CGETPIXELDLG::OnBnClickedCapture)
 	ON_BN_CLICKED(IDRETURN, &CGETPIXELDLG::OnBnClickedReturn)
 	ON_STN_CLICKED(IDC_GETPIXEL_PICTURE1, &CGETPIXELDLG::OnStnClickedGetpixelPicture1)
@@ -251,11 +271,20 @@ BEGIN_MESSAGE_MAP(CGETPIXELDLG, CDialogEx)
 	ON_STN_CLICKED(IDC_GETPIXEL_PICTURE23, &CGETPIXELDLG::OnStnClickedGetpixelPicture23)
 	ON_STN_CLICKED(IDC_GETPIXEL_PICTURE24, &CGETPIXELDLG::OnStnClickedGetpixelPicture24)
 	ON_STN_CLICKED(IDC_GETPIXEL_PICTURE25, &CGETPIXELDLG::OnStnClickedGetpixelPicture25)
+	ON_WM_CTLCOLOR()
 END_MESSAGE_MAP()
 
 
 // CGETPIXELDLG 消息处理程序
 
+void CGETPIXELDLG::OnPaint()
+{
+	CDialogEx::OnPaint();
+	
+	// note: 重绘 Inspector Window 5x5
+	this->ProcCapture();
+	
+}
 
 void CGETPIXELDLG::OnBnClickedCapture()
 {
@@ -473,7 +502,7 @@ void CGETPIXELDLG::OnStnClickedGetpixelPicture14()
 void CGETPIXELDLG::OnStnClickedGetpixelPicture15()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	this->ctr_x += 1;
+	this->ctr_x += 2;
 	CString str_x, str_y;
 	str_x.Format(_T("%ld"), ctr_x);
 	str_y.Format(_T("%ld"), ctr_y);
@@ -618,4 +647,19 @@ void CGETPIXELDLG::OnStnClickedGetpixelPicture25()
 	m_edit_x.SetWindowText(str_x);
 	m_edit_y.SetWindowText(str_y);
 	this->ProcCapture();
+}
+
+
+HBRUSH CGETPIXELDLG::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+{
+	HBRUSH hbr = CDialogEx::OnCtlColor(pDC, pWnd, nCtlColor);
+
+	// TODO:  在此更改 DC 的任何特性
+	if (pWnd->GetDlgCtrlID() == IDC_GETPIXEL_STATIC_GREYVAL)
+	{
+		pDC->SetBkMode(TRANSPARENT);
+		return (HBRUSH)::GetStockObject(NULL_BRUSH);
+	}
+	// TODO:  如果默认的不是所需画笔，则返回另一个画笔
+	return hbr;
 }

@@ -212,3 +212,8 @@ void CImgProcApp::OnImageprocessingOpenbmpfile()
 	// TODO: 在此添加命令处理程序代码
 	this->OnFileOpen();
 }
+
+void CImgProcApp::ManualFileNew()
+{
+	this->OnFileNew();
+}

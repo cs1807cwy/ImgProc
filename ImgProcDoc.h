@@ -9,7 +9,8 @@
 
 class CImgProcDoc : public CDocument
 {
-protected: 
+//protected: 
+public:
 	// 仅从序列化创建
 	CImgProcDoc() noexcept;
 	DECLARE_DYNCREATE(CImgProcDoc)
@@ -23,6 +24,8 @@ public:
 	CString fileName;
 // 操作
 public:
+	CImgProcDoc(const CImgProcDoc& doc);
+	CImgProcDoc& operator=(const CImgProcDoc& doc);
 
 protected:
 	bool OpenBMPfile(CString strBmpFile);
@@ -37,6 +40,9 @@ public:
 	virtual BOOL OnSaveDocument(LPCTSTR lpszPathName);
 	virtual void OnCloseDocument();
 	virtual void Serialize(CArchive& ar);
+
+	void Clear();
+
 #ifdef SHARED_HANDLERS
 	virtual void InitializeSearchContent();
 	virtual void OnDrawThumbnail(CDC& dc, LPRECT lprcBounds);
@@ -71,15 +77,20 @@ public:
 	LONG GetImageHeight() { return this->bmpInfo.biHeight; }
 	LONG GetWidthBytes()
 	{
-		LONG nBytesPerRow = 4 * ((this->bmpInfo.biWidth * this->bmpInfo.biBitCount + 31) / 32);
+		LONG nBytesPerRow = 4L * ((this->bmpInfo.biWidth * this->bmpInfo.biBitCount + 31L) / 32L);
 		return (nBytesPerRow);
 	}
 	WORD GetColorBits() { return this->bmpInfo.biBitCount; }
 	DWORD GetUsedColors() { return this->bmpInfo.biClrUsed; }
 
 	CString GetFilePath() { return this->fileName; }
-	long GetPixel(int x, int y, RGBQUAD rgb[1], bool bGray[1]);
-	void SetPixel(int x, int y, RGBQUAD rgb, int width = 1, int height = 1);
+
+	RGBQUAD MapColor(const RGBQUAD& rgb);
+	LONG GetPixel(LONG x, LONG y, RGBQUAD rgb[1], bool bGray[1] = nullptr);
+	void SetPixel(LONG x, LONG y, RGBQUAD rgb, int width = 1, int height = 1);
+
+	enum INTERPOLATION_MODE { DEFAULT, NEAREST, BILINEAR };
+	void ImageInterpolation(CImgProcDoc& newDoc, double factor_w, double factor_h, INTERPOLATION_MODE nMethod);
 
 	afx_msg void OnImageprocessingSavetonewbmpfile();
 	afx_msg void OnImageprocessingDispplayfileheader();

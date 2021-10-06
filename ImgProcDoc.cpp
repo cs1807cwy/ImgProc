@@ -146,6 +146,23 @@ BOOL CImgProcDoc::OnNewDocument()
 	return TRUE;
 }
 
+CImgProcDoc::CImgProcDoc(const CImgProcDoc& doc):
+	bmpHead(doc.bmpHead), bmpInfo(doc.bmpInfo),
+	palette(doc.palette), pixelData(doc.pixelData), fileName(doc.fileName)
+{
+}
+
+CImgProcDoc& CImgProcDoc::operator=(const CImgProcDoc& doc)
+{
+	// TODO: 在此处插入 return 语句
+	this->bmpHead = doc.bmpHead;
+	this->bmpInfo = doc.bmpInfo;
+	this->palette = doc.palette;
+	this->pixelData = doc.pixelData;
+	this->fileName = doc.fileName;
+	return (*this);
+}
+
 BOOL CImgProcDoc::OnOpenDocument(LPCTSTR lpszPathName)
 {
 	if (this->OpenBMPfile(lpszPathName) == false)
@@ -191,6 +208,15 @@ void CImgProcDoc::Serialize(CArchive& ar)
 	{
 		// TODO: 在此添加加载代码
 	}
+}
+
+void CImgProcDoc::Clear()
+{
+	memset((char*)&this->bmpHead, 0, sizeof(BITMAPFILEHEADER));
+	memset((char*)&this->bmpInfo, 0, sizeof(BITMAPINFOHEADER));
+	this->palette.clear();
+	this->pixelData.clear();
+	this->fileName.Empty();
 }
 
 #ifdef SHARED_HANDLERS
@@ -263,17 +289,27 @@ void CImgProcDoc::Dump(CDumpContext& dc) const
 
 // CImgProcDoc 命令
 
+RGBQUAD CImgProcDoc::MapColor(const RGBQUAD& rgb)
+{
+	if (this->GetColorBits() == 8 && this->palette.size() > 0)
+	{
+		return this->palette[rgb.rgbRed];
+	}
+	return rgb;
+}
+
 //   象素操作
-//	 读象素颜色值
+//	 读象素颜色值： 灰度值（R=G=B) 或 RGB值
+//   对 灰度值 不进行颜色索引
 //	 返回: >=0 表示象素在位图数据中的偏移值
 //				 <0 失败或参数无效
-long CImgProcDoc::GetPixel(int x, int y, RGBQUAD rgb[1], bool bGray[1])
+long CImgProcDoc::GetPixel(LONG x, LONG y, RGBQUAD rgb[1], bool bGray[1])
 {
-	int  nColorBits = GetColorBits();
-	int  nImageHeight = GetImageHeight();
-	int  nBytesPerRow = GetWidthBytes();
+	WORD  nColorBits = GetColorBits();
+	LONG  nImageHeight = GetImageHeight();
+	LONG  nBytesPerRow = GetWidthBytes();
 
-	long nOffInImage = (nImageHeight - 1 - y) * nBytesPerRow;
+	LONG nOffInImage = (nImageHeight - 1 - y) * nBytesPerRow;
 
 	if (bGray != NULL) *bGray = true;
 	if (nColorBits == 8)
@@ -287,7 +323,7 @@ long CImgProcDoc::GetPixel(int x, int y, RGBQUAD rgb[1], bool bGray[1])
 	else if (nColorBits == 24)
 	{
 		if (bGray != NULL) *bGray = false;
-		nOffInImage += 3 * x;
+		nOffInImage += 3L * x;
 		rgb[0].rgbReserved = 0;
 		rgb[0].rgbRed = this->pixelData[nOffInImage + 2];
 		rgb[0].rgbGreen = this->pixelData[nOffInImage + 1];
@@ -303,12 +339,12 @@ long CImgProcDoc::GetPixel(int x, int y, RGBQUAD rgb[1], bool bGray[1])
 }
 
 //  设置像素(x,y)的颜色值
-void CImgProcDoc::SetPixel(int x, int y, RGBQUAD rgb, int width, int height)
+void CImgProcDoc::SetPixel(LONG x, LONG y, RGBQUAD rgb, int width, int height)
 {
-	int  nColorBits = GetColorBits();
-	int  nImageHeight = GetImageHeight();
-	int  nImageWidth = GetImageWidth();
-	int  nBytesPerRow = GetWidthBytes();
+	WORD  nColorBits = GetColorBits();
+	LONG  nImageHeight = GetImageHeight();
+	LONG  nImageWidth = GetImageWidth();
+	LONG  nBytesPerRow = GetWidthBytes();
 	
 	if (x < 0 || x >= nImageWidth ||
 		y < 0 || y >= nImageHeight)
@@ -316,16 +352,16 @@ void CImgProcDoc::SetPixel(int x, int y, RGBQUAD rgb, int width, int height)
 		return;
 	}
 
-	int realHeight = min(height, nImageHeight - y);
-	int realWidth = min(width, nImageWidth - x);
+	LONG realHeight = min(height, nImageHeight - y);
+	LONG realWidth = min(width, nImageWidth - x);
 
 	if (nColorBits == 8)
 	{
-		for (int ty = y; ty < y + realHeight; ++ty)
+		for (LONG ty = y; ty < y + realHeight; ++ty)
 		{
-			for (int tx = x; tx < x + realWidth; ++tx)
+			for (LONG tx = x; tx < x + realWidth; ++tx)
 			{
-				long nOffInImage = (nImageHeight - 1 - ty) * nBytesPerRow;
+				LONG nOffInImage = (nImageHeight - 1 - ty) * nBytesPerRow;
 				nOffInImage += tx;
 				this->pixelData[nOffInImage] = rgb.rgbRed;
 			}
@@ -333,11 +369,11 @@ void CImgProcDoc::SetPixel(int x, int y, RGBQUAD rgb, int width, int height)
 	}
 	else if (nColorBits == 24)
 	{
-		for (int ty = y; ty < y + realHeight; ++ty)
+		for (LONG ty = y; ty < y + realHeight; ++ty)
 		{
-			for (int tx = x; tx < x + realWidth; ++tx)
+			for (LONG tx = x; tx < x + realWidth; ++tx)
 			{
-				long nOffInImage = (nImageHeight - 1 - ty) * nBytesPerRow;
+				LONG nOffInImage = (nImageHeight - 1 - ty) * nBytesPerRow;
 				nOffInImage += (3 * tx);
 				this->pixelData[nOffInImage] = rgb.rgbBlue;
 				this->pixelData[nOffInImage + 1] = rgb.rgbGreen;
@@ -351,6 +387,77 @@ void CImgProcDoc::SetPixel(int x, int y, RGBQUAD rgb, int width, int height)
 	}
 
 	return;
+}
+
+// 图像插值
+/**
+	 功能: 图像插值
+			 nMethod  插值算法
+					0 = 最临近插值法
+					1 = (双)线性插值法
+	 返回: 新图像的BMP文件缓冲区首地址
+					 NULL 表示失败（内存不足）
+**/
+void CImgProcDoc::ImageInterpolation(CImgProcDoc& newDoc, double factor_w, double factor_h, INTERPOLATION_MODE nMethod)
+{
+	BITMAPFILEHEADER* pFileHeader = &this->bmpHead;
+
+	LONG orgWidth = this->bmpInfo.biWidth;
+	LONG orgHeight = this->bmpInfo.biHeight;
+	LONG colorBits = this->bmpInfo.biBitCount;
+	LONG newWidth = (LONG)((double)orgWidth * factor_w + 0.5);
+	LONG newHeight = (LONG)((double)orgHeight * factor_h + 0.5);
+
+	LONG bytesPerRow = 4 * ((newWidth * colorBits + 31) / 32);
+	LONG newImageSize = bytesPerRow * newHeight;
+
+	newDoc.bmpHead = this->bmpHead;
+	newDoc.bmpHead.bfSize = newImageSize + this->bmpHead.bfOffBits;
+	newDoc.bmpInfo = this->bmpInfo;
+	newDoc.bmpInfo.biWidth = newWidth;
+	newDoc.bmpInfo.biHeight = newHeight;
+	newDoc.bmpInfo.biSizeImage = bytesPerRow * newHeight;
+	newDoc.palette = this->palette;
+	newDoc.pixelData.resize(newImageSize);
+
+	for (LONG y = 0; y < newHeight; ++y)
+	{
+		double fy = (double)y * factor_h;
+		for (LONG x = 0; x < newWidth; ++x)
+		{
+			RGBQUAD rgb;
+			double fx = (double)x * factor_w;
+			if (nMethod == 0)		//最临近插值法
+			{
+				LONG xx = min((LONG)(fx + 0.5), orgWidth - 1);
+				LONG yy = min((LONG)(fy + 0.5), orgHeight - 1);
+				this->GetPixel(xx, yy, &rgb);
+			}
+			else
+			{	
+				//(双)线性插值法
+				RGBQUAD rgbLT, rgbRT, rgbLB, rgbRB;
+				LONG   x1 = (LONG)fx;
+				LONG   x2 = min(x1 + 1L, orgWidth - 1L);
+				double dx = fx - (double)x1;
+				LONG   y1 = (LONG)fy;
+				LONG   y2 = min(y1 + 1L, orgHeight - 1L);
+				double dy = (double)fy - (double)y1;
+				this->GetPixel(x1, y1, &rgbLT);
+				this->GetPixel(x2, y1, &rgbRT);
+				this->GetPixel(x1, y2, &rgbLB);
+				this->GetPixel(x2, y2, &rgbRB);
+				for (int N = 0; N < 4; N++)
+				{
+					double v1 = ((BYTE*)&rgbLT)[N] + dy * (((BYTE*)&rgbLB)[N] - ((BYTE*)&rgbLT)[N]);
+					double v2 = ((BYTE*)&rgbRT)[N] + dy * (((BYTE*)&rgbRB)[N] - ((BYTE*)&rgbRT)[N]);
+					((BYTE*)&rgb)[N] = (int)(v1 + dx * (v2 - v1) + 0.5);
+				}
+			}
+			newDoc.SetPixel(x, y, rgb);
+		}
+	}
+
 }
 
 

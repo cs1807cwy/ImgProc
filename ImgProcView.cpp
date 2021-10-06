@@ -19,7 +19,7 @@
 #endif
 #include "ChildFrm.h"
 #include "MainFrm.h"
-#include "Dialogs.h"
+#include "CGETPIXELDLG.h"
 #include "CSETPIXELDLG.h"
 #include "CSETPIXELGREYDLG.h"
 #include "CINTERPOLATIONDLG.h"
@@ -42,7 +42,6 @@ BEGIN_MESSAGE_MAP(CImgProcView, CView)
 	ON_COMMAND(ID_INSPECTION_PALETTE, &CImgProcView::OnInspectionPalette)
 	ON_COMMAND(ID_IMAGEPROCESSING_GETPIXELVALUE, &CImgProcView::OnImageprocessingGetpixelvalue)
 	ON_COMMAND(ID_IMAGEPROCESSING_SETPIXELVALUE, &CImgProcView::OnImageprocessingSetpixelvalue)
-	ON_UPDATE_COMMAND_UI(ID_IMAGEPROCESSING_IMAGEINTERPOLATION, &CImgProcView::OnUpdateImageprocessingImageinterpolation)
 	ON_COMMAND(ID_IMAGEPROCESSING_IMAGEINTERPOLATION, &CImgProcView::OnImageprocessingImageinterpolation)
 END_MESSAGE_MAP()
 
@@ -74,7 +73,7 @@ void CImgProcView::DisplayImage(CDC* pDC, int disp_xL, int disp_yL, int disp_Wid
 	ASSERT(hDC != 0);
 
 	CImgProcDoc* pDoc = GetDocument();
-	ASSERT(pDoc->pixelData.size() != 0);
+	//ASSERT(pDoc->pixelData.size() != 0);
 
 	int nImageWidth = pDoc->GetImageWidth();
 	int nImageHeight = pDoc->GetImageHeight();
@@ -98,7 +97,8 @@ void CImgProcView::DisplayImage(CDC* pDC, int disp_xL, int disp_yL, int disp_Wid
 	BITMAPINFO* pBitsInfo = (BITMAPINFO*)buf;
 	memcpy(&pBitsInfo->bmiHeader, pBitmapInfo, sizeof(BITMAPINFOHEADER));
 
-	ASSERT(pDoc->GetPalette().size() == pBitmapInfo->biClrUsed);
+	//TRACE2("size:%d, biclrused:%d\n", pDoc->GetPalette().size(), pBitmapInfo->biClrUsed);
+	ASSERT(!pBitmapInfo->biClrUsed || pDoc->GetPalette().size() == pBitmapInfo->biClrUsed);
 
 	if (pBitmapInfo->biClrUsed == 0)
 	{

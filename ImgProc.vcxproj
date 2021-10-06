@@ -30,7 +30,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -188,7 +188,6 @@
     <ClInclude Include="CINTERPOLATIONDLG.h" />
     <ClInclude Include="CSETPIXELDLG.h" />
     <ClInclude Include="CSETPIXELGREYDLG.h" />
-    <ClInclude Include="Dialogs.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="ImgProc.h" />
     <ClInclude Include="ImgProcDoc.h" />

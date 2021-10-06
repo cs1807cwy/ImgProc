@@ -48,9 +48,6 @@
     <ClInclude Include="CGETPIXELDLG.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Dialogs.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="CSETPIXELDLG.h">
       <Filter>头文件</Filter>
     </ClInclude>
