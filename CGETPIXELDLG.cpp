@@ -166,7 +166,7 @@ void CGETPIXELDLG::ProcCapture()
 	// note: 设置5x5监视窗口
 	std::vector<RGBQUAD> clrMat5x5;
 	RGBQUAD CLR_TRANSPARENT{ (BYTE)255,(BYTE)255,(BYTE)255,(BYTE)0 };	// 透明色
-	RGBQUAD CLR_GREY{ (BYTE)192,(BYTE)192,(BYTE)192,(BYTE)255 };	// 灰色分隔框
+	RGBQUAD CLR_GREY{ (BYTE)160,(BYTE)160,(BYTE)160,(BYTE)255 };	// 灰色分隔框
 	RGBQUAD CLR_RED{ (BYTE)32,(BYTE)32,(BYTE)255,(BYTE)255 };	// 红色中心框
 	for (int y = -2; y <= 2; ++y)
 	{
@@ -280,10 +280,9 @@ END_MESSAGE_MAP()
 void CGETPIXELDLG::OnPaint()
 {
 	CDialogEx::OnPaint();
-	
+
 	// note: 重绘 Inspector Window 5x5
 	this->ProcCapture();
-	
 }
 
 void CGETPIXELDLG::OnBnClickedCapture()

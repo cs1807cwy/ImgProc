@@ -82,7 +82,6 @@
 #define IDC_INTERPOLATION_STATIC_FACTOR 1064
 #define IDC_INTERPOLATION_STATIC_X      1065
 #define IDC_INTERPOLATION_STATIC_Y      1066
-#define IDC_SLIDER1                     1067
 #define IDC_GETPIXEL_STATIC_GREYVAL     1068
 #define ID_IMAGEPROCESSING_OPENBMPFILE  32771
 #define ID_IMAGEPROCESSING_SAVETONEWBMPFILE 32772
@@ -93,14 +92,15 @@
 #define ID_IMAGEPROCESSING_IMAGEINTERPOLATION 32778
 #define ID_MODE_NEAREST                 32779
 #define ID_MODE_BI                      32780
+#define ID_CLOSE_FILE                   32781
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        318
-#define _APS_NEXT_COMMAND_VALUE         32781
-#define _APS_NEXT_CONTROL_VALUE         1069
+#define _APS_NEXT_COMMAND_VALUE         32782
+#define _APS_NEXT_CONTROL_VALUE         1070
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif

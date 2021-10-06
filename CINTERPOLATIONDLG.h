@@ -28,7 +28,8 @@ public:
 	enum MODE { UNKNOWN, NEAREST, BILINEAR };
 	const CString MODENAME[3]{ _T("Unknown"), _T("Nearest"), _T("Bi-Linear") };
 
-	WORD modeSel;
+
+	MODE modeSel;
 	CSplitButton m_split_sel;
 	CEdit m_edit_fx;
 	CEdit m_edit_fy;

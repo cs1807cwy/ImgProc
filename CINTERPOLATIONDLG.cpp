@@ -61,10 +61,15 @@ void CINTERPOLATIONDLG::OnBnClickedOk()
 	double fx = _ttof(strFx);
 	double fy = _ttof(strFy);
 
-	AfxMessageBox(_T("DLG"));
+	// note: 重设伸缩因子（规范化）
+	strFx.Format(_T("%lf"), fx);
+	strFy.Format(_T("%lf"), fy);
+	m_edit_fx.SetWindowText(strFx);
+	m_edit_fy.SetWindowText(strFy);
+	//AfxMessageBox(_T("stop to see!"));
 
-	if (fx <= 0.0 || isnan(fx) || isinf(fx)
-		|| fy <= 0.0 || isnan(fy) || isinf(fy))
+	if (fx <= 0.0 || isnan(fx) || isinf(fx) || fx > 100.0
+		|| fy <= 0.0 || isnan(fy) || isinf(fy) || fy > 100.0)
 	{
 		AfxMessageBox(_T("Invalid Factor(s)"));
 		m_edit_fx.SetWindowText(_T("1.0"));
@@ -74,17 +79,14 @@ void CINTERPOLATIONDLG::OnBnClickedOk()
 	{
 		CImgProcDoc* pDoc = (CImgProcDoc*)((CMainFrame*)AfxGetMainWnd())->MDIGetActive()->GetActiveView()->GetDocument();
 		CImgProcApp* pApp = (CImgProcApp*)AfxGetApp();
-		pApp->GetTransDoc() = *pDoc;
+		
+		// note: 将pDoc变换到App的交换区Doc
+		pDoc->ImageInterpolation(pApp->GetTransDoc(), fx, fy, (CImgProcDoc::INTERPOLATION_MODE)this->modeSel);
 
-
-
+		// note: 新建BMP文件
 		pApp->ManualFileNew();
-
-
 		CDialogEx::OnOK();
 	}
-
-
 }
 
 

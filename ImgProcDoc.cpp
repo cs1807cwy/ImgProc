@@ -28,6 +28,7 @@ IMPLEMENT_DYNCREATE(CImgProcDoc, CDocument)
 
 BEGIN_MESSAGE_MAP(CImgProcDoc, CDocument)
 	ON_COMMAND(ID_IMAGEPROCESSING_SAVETONEWBMPFILE, &CImgProcDoc::OnImageprocessingSavetonewbmpfile)
+	ON_COMMAND(ID_FILE_SAVE, &CImgProcDoc::OnImageprocessingSavetonewbmpfile)
 	ON_COMMAND(ID_IMAGEPROCESSING_DISPPLAYFILEHEADER, &CImgProcDoc::OnImageprocessingDispplayfileheader)
 END_MESSAGE_MAP()
 
@@ -142,7 +143,8 @@ BOOL CImgProcDoc::OnNewDocument()
 		return FALSE;
 	// TODO: 在此添加重新初始化代码
 	// (SDI 文档将重用该文档)
-	
+	*this = ((CImgProcApp*)AfxGetApp())->GetTransDoc();
+
 	return TRUE;
 }
 
@@ -177,9 +179,10 @@ BOOL CImgProcDoc::OnOpenDocument(LPCTSTR lpszPathName)
 
 BOOL CImgProcDoc::OnSaveDocument(LPCTSTR lpszPathName)
 {
+	//TRACE0("OnFileSave() invoked <-\n");
 	LPCTSTR lpszFilter = _T("BMP Files (*.bmp)|*.bmp||");
 	CFileDialog dlg(FALSE, NULL, NULL, OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT, lpszFilter, NULL);
-	if (dlg.DoModal() != IDOK) return FALSE;
+	if (dlg.DoModal() != IDOK) return TRUE;
 	CString tmps = dlg.GetPathName();
 	if (tmps.Right(4) != ".bmp") { tmps += ".bmp"; }
 	//TRACE1("OnFileSave() invoked -> %s\n", tmps);
@@ -422,20 +425,25 @@ void CImgProcDoc::ImageInterpolation(CImgProcDoc& newDoc, double factor_w, doubl
 
 	for (LONG y = 0; y < newHeight; ++y)
 	{
-		double fy = (double)y * factor_h;
+		double fy = (double)y / factor_h;
 		for (LONG x = 0; x < newWidth; ++x)
 		{
-			RGBQUAD rgb;
-			double fx = (double)x * factor_w;
-			if (nMethod == 0)		//最临近插值法
+			RGBQUAD rgb{ 0,0,0,0 };
+			double fx = (double)x / factor_w;
+
+			switch (nMethod)
 			{
+			//最临近插值法
+			case INTERPOLATION_MODE::DEFAULT: case INTERPOLATION_MODE::NEAREST:
+			{	
 				LONG xx = min((LONG)(fx + 0.5), orgWidth - 1);
 				LONG yy = min((LONG)(fy + 0.5), orgHeight - 1);
 				this->GetPixel(xx, yy, &rgb);
+				break;
 			}
-			else
-			{	
-				//(双)线性插值法
+			//(双)线性插值法
+			case INTERPOLATION_MODE::BILINEAR:
+			{
 				RGBQUAD rgbLT, rgbRT, rgbLB, rgbRB;
 				LONG   x1 = (LONG)fx;
 				LONG   x2 = min(x1 + 1L, orgWidth - 1L);
@@ -453,6 +461,9 @@ void CImgProcDoc::ImageInterpolation(CImgProcDoc& newDoc, double factor_w, doubl
 					double v2 = ((BYTE*)&rgbRT)[N] + dy * (((BYTE*)&rgbRB)[N] - ((BYTE*)&rgbRT)[N]);
 					((BYTE*)&rgb)[N] = (int)(v1 + dx * (v2 - v1) + 0.5);
 				}
+				break;
+			}
+			default: break;
 			}
 			newDoc.SetPixel(x, y, rgb);
 		}
