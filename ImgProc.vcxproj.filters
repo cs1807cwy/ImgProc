@@ -57,6 +57,9 @@
     <ClInclude Include="CSETPIXELGREYDLG.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="CINTERPOLATIONDLG.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ImgProc.cpp">
@@ -87,6 +90,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CSETPIXELGREYDLG.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CINTERPOLATIONDLG.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

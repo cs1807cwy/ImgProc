@@ -185,6 +185,7 @@
   <ItemGroup>
     <ClInclude Include="CGETPIXELDLG.h" />
     <ClInclude Include="ChildFrm.h" />
+    <ClInclude Include="CINTERPOLATIONDLG.h" />
     <ClInclude Include="CSETPIXELDLG.h" />
     <ClInclude Include="CSETPIXELGREYDLG.h" />
     <ClInclude Include="Dialogs.h" />
@@ -201,6 +202,7 @@
   <ItemGroup>
     <ClCompile Include="CGETPIXELDLG.cpp" />
     <ClCompile Include="ChildFrm.cpp" />
+    <ClCompile Include="CINTERPOLATIONDLG.cpp" />
     <ClCompile Include="CSETPIXELDLG.cpp" />
     <ClCompile Include="CSETPIXELGREYDLG.cpp" />
     <ClCompile Include="ImgProc.cpp" />

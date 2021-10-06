@@ -55,6 +55,7 @@ public:
 	afx_msg void OnInspectionPalette();
 	afx_msg void OnImageprocessingGetpixelvalue();
 	afx_msg void OnImageprocessingSetpixelvalue();
+	afx_msg void OnImageprocessingImageinterpolation();
 };
 
 #ifndef _DEBUG  // ImgProcView.cpp 中的调试版本

@@ -22,6 +22,7 @@
 #include "Dialogs.h"
 #include "CSETPIXELDLG.h"
 #include "CSETPIXELGREYDLG.h"
+#include "CINTERPOLATIONDLG.h"
 
 
 // CImgProcView
@@ -41,6 +42,8 @@ BEGIN_MESSAGE_MAP(CImgProcView, CView)
 	ON_COMMAND(ID_INSPECTION_PALETTE, &CImgProcView::OnInspectionPalette)
 	ON_COMMAND(ID_IMAGEPROCESSING_GETPIXELVALUE, &CImgProcView::OnImageprocessingGetpixelvalue)
 	ON_COMMAND(ID_IMAGEPROCESSING_SETPIXELVALUE, &CImgProcView::OnImageprocessingSetpixelvalue)
+	ON_UPDATE_COMMAND_UI(ID_IMAGEPROCESSING_IMAGEINTERPOLATION, &CImgProcView::OnUpdateImageprocessingImageinterpolation)
+	ON_COMMAND(ID_IMAGEPROCESSING_IMAGEINTERPOLATION, &CImgProcView::OnImageprocessingImageinterpolation)
 END_MESSAGE_MAP()
 
 // CImgProcView 构造/析构
@@ -359,4 +362,13 @@ void CImgProcView::OnImageprocessingSetpixelvalue()
 		CSETPIXELGREYDLG setPixelGreyDlg;
 		setPixelGreyDlg.DoModal();
 	}
+}
+
+
+
+void CImgProcView::OnImageprocessingImageinterpolation()
+{
+	// TODO: 在此添加命令处理程序代码
+	CINTERPOLATIONDLG interpolationDlg;
+	interpolationDlg.DoModal();
 }
