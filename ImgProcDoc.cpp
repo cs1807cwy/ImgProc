@@ -392,6 +392,20 @@ void CImgProcDoc::SetPixel(LONG x, LONG y, RGBQUAD rgb, int width, int height)
 	return;
 }
 
+// note: 仅对灰度图像生效
+std::vector<DWORD> CImgProcDoc::GetHistogram()
+{
+	std::vector<DWORD> gram;
+	if (this->GetColorBits() != 8L) { return gram; }
+
+	DWORD clrCnt = this->palette.size();
+	if (clrCnt == 0) { clrCnt = this->GetUsedColors(); }
+	if (clrCnt == 0) { clrCnt = 256UL; }
+	gram.resize(clrCnt, 0);
+	for (auto c : this->pixelData) { ++gram[c]; }
+	return gram;
+}
+
 // 图像插值
 /**
 	 功能: 图像插值

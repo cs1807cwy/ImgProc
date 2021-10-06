@@ -43,6 +43,8 @@ BEGIN_MESSAGE_MAP(CImgProcView, CView)
 	ON_COMMAND(ID_IMAGEPROCESSING_GETPIXELVALUE, &CImgProcView::OnImageprocessingGetpixelvalue)
 	ON_COMMAND(ID_IMAGEPROCESSING_SETPIXELVALUE, &CImgProcView::OnImageprocessingSetpixelvalue)
 	ON_COMMAND(ID_IMAGEPROCESSING_IMAGEINTERPOLATION, &CImgProcView::OnImageprocessingImageinterpolation)
+	ON_COMMAND(ID_INSPECTION_HISTOGRAM, &CImgProcView::OnInspectionHistogram)
+	ON_UPDATE_COMMAND_UI(ID_INSPECTION_HISTOGRAM, &CImgProcView::OnUpdateInspectionHistogram)
 END_MESSAGE_MAP()
 
 // CImgProcView 构造/析构
@@ -371,4 +373,27 @@ void CImgProcView::OnImageprocessingImageinterpolation()
 	// TODO: 在此添加命令处理程序代码
 	CINTERPOLATIONDLG interpolationDlg;
 	interpolationDlg.DoModal();
+}
+
+
+void CImgProcView::OnInspectionHistogram()
+{
+	// TODO: 在此添加命令处理程序代码
+	CImgProcDoc* pDoc = GetDocument();
+	std::vector<DWORD> histogram = pDoc->GetHistogram();
+	CString hinfo;
+	for (size_t i = 0; i < histogram.size(); ++i)
+	{
+		hinfo.AppendFormat(_T("Grey[%3llu] %lu"), i, histogram[i]);
+		if (i % 8 == 7) { hinfo.AppendChar(_T('\n')); }
+		else { hinfo.AppendChar(_T('\t')); }
+	}
+	AfxMessageBox(hinfo);
+}
+
+
+void CImgProcView::OnUpdateInspectionHistogram(CCmdUI* pCmdUI)
+{
+	// TODO: 在此添加命令更新用户界面处理程序代码
+	pCmdUI->Enable(GetDocument()->GetInfoHeader()->biBitCount == 8);
 }

@@ -88,6 +88,7 @@ public:
 	RGBQUAD MapColor(const RGBQUAD& rgb);
 	LONG GetPixel(LONG x, LONG y, RGBQUAD rgb[1], bool bGray[1] = nullptr);
 	void SetPixel(LONG x, LONG y, RGBQUAD rgb, int width = 1, int height = 1);
+	std::vector<DWORD> GetHistogram();
 
 	enum INTERPOLATION_MODE { DEFAULT, NEAREST, BILINEAR };
 	void ImageInterpolation(CImgProcDoc& newDoc, double factor_w, double factor_h, INTERPOLATION_MODE nMethod);

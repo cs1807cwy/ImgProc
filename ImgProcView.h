@@ -56,6 +56,8 @@ public:
 	afx_msg void OnImageprocessingGetpixelvalue();
 	afx_msg void OnImageprocessingSetpixelvalue();
 	afx_msg void OnImageprocessingImageinterpolation();
+	afx_msg void OnInspectionHistogram();
+	afx_msg void OnUpdateInspectionHistogram(CCmdUI* pCmdUI);
 };
 
 #ifndef _DEBUG  // ImgProcView.cpp 中的调试版本
