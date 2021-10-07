@@ -173,7 +173,7 @@ void CImgProcView::DisplayPalette()
 	{
 		for (size_t i = 0; i < plt.size(); ++i)
 		{
-			s_plt.AppendFormat(_T("[%3lu]0X%06X\t"), i, *(unsigned int*)&plt[i]);
+			s_plt.AppendFormat(_T("[%3llu]0X%06X\t"), i, *(unsigned int*)&plt[i]);
 			if (i % 8 == 7) { s_plt.AppendChar('\n'); }
 		}
 		AfxMessageBox(s_plt);
@@ -331,7 +331,7 @@ void CImgProcView::OnMouseLeave()
 void CImgProcView::OnUpdateInspectionPalette(CCmdUI* pCmdUI)
 {
 	// TODO: 在此添加命令更新用户界面处理程序代码
-	pCmdUI->Enable(GetDocument()->GetInfoHeader()->biBitCount == 8);
+	pCmdUI->Enable(GetDocument()->GetColorBits() == 8);
 }
 
 
@@ -395,5 +395,5 @@ void CImgProcView::OnInspectionHistogram()
 void CImgProcView::OnUpdateInspectionHistogram(CCmdUI* pCmdUI)
 {
 	// TODO: 在此添加命令更新用户界面处理程序代码
-	pCmdUI->Enable(GetDocument()->GetInfoHeader()->biBitCount == 8);
+	pCmdUI->Enable(GetDocument()->GetColorBits() == 8);
 }

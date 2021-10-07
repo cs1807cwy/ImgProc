@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="头文件\Dialog">
+      <UniqueIdentifier>{c94f57ed-5af5-4291-9ff6-2488e514847c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Dialog">
+      <UniqueIdentifier>{f9c816b8-2133-434d-bec3-cd99453de7df}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ImgProc.h">
@@ -46,15 +52,18 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="CGETPIXELDLG.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="CSETPIXELDLG.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="CSETPIXELGREYDLG.h">
-      <Filter>头文件</Filter>
+      <Filter>头文件\Dialog</Filter>
     </ClInclude>
     <ClInclude Include="CINTERPOLATIONDLG.h">
+      <Filter>头文件\Dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="CSETPIXELDLG.h">
+      <Filter>头文件\Dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="CSETPIXELGREYDLG.h">
+      <Filter>头文件\Dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="SrColorQuant.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -81,15 +90,18 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CGETPIXELDLG.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="CSETPIXELDLG.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="CSETPIXELGREYDLG.cpp">
-      <Filter>源文件</Filter>
+      <Filter>源文件\Dialog</Filter>
     </ClCompile>
     <ClCompile Include="CINTERPOLATIONDLG.cpp">
+      <Filter>源文件\Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="CSETPIXELDLG.cpp">
+      <Filter>源文件\Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="CSETPIXELGREYDLG.cpp">
+      <Filter>源文件\Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="SrColorQuant.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

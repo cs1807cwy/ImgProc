@@ -72,6 +72,9 @@ public:
 	BITMAPFILEHEADER* GetFileHeader() { return &this->bmpHead; }
 	BITMAPINFOHEADER* GetInfoHeader() { return &this->bmpInfo; }
 	std::vector<RGBQUAD>& GetPalette() { return this->palette; }
+	bool IsDefaultPalette();
+	static void DisplayPalette(std::vector<RGBQUAD>& plt);
+
 	std::vector<BYTE>& GetImageBuf() { return this->pixelData; }
 	LONG GetImageWidth() { return this->bmpInfo.biWidth; }
 	LONG GetImageHeight() { return this->bmpInfo.biHeight; }
@@ -86,13 +89,24 @@ public:
 	CString GetFilePath() { return this->fileName; }
 
 	RGBQUAD MapColor(const RGBQUAD& rgb);
+	static RGBQUAD MapRGB24ToGrey(const RGBQUAD& rgb);
+	static int MapRGB24ToPalette(const RGBQUAD& rgb, std::vector<RGBQUAD>& plt);
 	LONG GetPixel(LONG x, LONG y, RGBQUAD rgb[1], bool bGray[1] = nullptr);
 	void SetPixel(LONG x, LONG y, RGBQUAD rgb, int width = 1, int height = 1);
 	std::vector<DWORD> GetHistogram();
+
+	bool CodingGrey(CImgProcDoc& newDoc);
+	bool CodingRGB24(CImgProcDoc& newDoc);
+	bool CodingIndexColor(CImgProcDoc& newDoc);
 
 	enum INTERPOLATION_MODE { DEFAULT, NEAREST, BILINEAR };
 	void ImageInterpolation(CImgProcDoc& newDoc, double factor_w, double factor_h, INTERPOLATION_MODE nMethod);
 
 	afx_msg void OnImageprocessingSavetonewbmpfile();
 	afx_msg void OnImageprocessingDispplayfileheader();
+	afx_msg void OnUpdateTransferIndexcolor(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateTransferRgb24(CCmdUI* pCmdUI);
+	afx_msg void OnTransferRgb24();
+	afx_msg void OnTransferIndexcolor();
+	afx_msg void OnTransferGrey();
 };

@@ -93,13 +93,18 @@
 #define ID_MODE_NEAREST                 32779
 #define ID_MODE_BI                      32780
 #define ID_INSPECTION_HISTOGRAM         32782
+#define ID_INSPECTION_TRANSFER          32783
+#define ID_TRANSFER_RGB24               32784
+#define ID_TRANSFER_INDEXCOLOR          32785
+#define ID_COLORCODING_GREY             32786
+#define ID_TRANSFER_GREY                32787
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        318
-#define _APS_NEXT_COMMAND_VALUE         32783
+#define _APS_NEXT_COMMAND_VALUE         32788
 #define _APS_NEXT_CONTROL_VALUE         1070
 #define _APS_NEXT_SYMED_VALUE           310
 #endif

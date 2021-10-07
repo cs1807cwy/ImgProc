@@ -21,6 +21,7 @@
 #include "ImgProcView.h"
 #include "MainFrm.h"
 #include "ChildFrm.h"
+#include "SrColorQuant.h"
 
 // CImgProcDoc
 
@@ -30,6 +31,11 @@ BEGIN_MESSAGE_MAP(CImgProcDoc, CDocument)
 	ON_COMMAND(ID_IMAGEPROCESSING_SAVETONEWBMPFILE, &CImgProcDoc::OnImageprocessingSavetonewbmpfile)
 	ON_COMMAND(ID_FILE_SAVE, &CImgProcDoc::OnImageprocessingSavetonewbmpfile)
 	ON_COMMAND(ID_IMAGEPROCESSING_DISPPLAYFILEHEADER, &CImgProcDoc::OnImageprocessingDispplayfileheader)
+	ON_UPDATE_COMMAND_UI(ID_TRANSFER_INDEXCOLOR, &CImgProcDoc::OnUpdateTransferIndexcolor)
+	ON_UPDATE_COMMAND_UI(ID_TRANSFER_RGB24, &CImgProcDoc::OnUpdateTransferRgb24)
+	ON_COMMAND(ID_TRANSFER_RGB24, &CImgProcDoc::OnTransferRgb24)
+	ON_COMMAND(ID_TRANSFER_INDEXCOLOR, &CImgProcDoc::OnTransferIndexcolor)
+	ON_COMMAND(ID_TRANSFER_GREY, &CImgProcDoc::OnTransferGrey)
 END_MESSAGE_MAP()
 
 
@@ -60,7 +66,7 @@ bool CImgProcDoc::OpenBMPfile(CString strBmpFile)
 		return false;
 	}
 
-	long lFileSize = (long)hFile.Seek(0L, CFile::end);
+	DWORD lFileSize = (DWORD)hFile.Seek(0L, CFile::end);
 	if (lFileSize < sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER))
 	{
 		AfxMessageBox(_T("This isn't a valid BMP file"));
@@ -292,6 +298,40 @@ void CImgProcDoc::Dump(CDumpContext& dc) const
 
 // CImgProcDoc 命令
 
+bool CImgProcDoc::IsDefaultPalette()
+{
+	if (this->palette.size() == 0) { return true; }
+	if (this->palette.size() != 256) { return false; }
+	for (size_t i = 0; i < this->palette.size(); ++i)
+	{
+		if (this->palette[i].rgbRed != i
+			|| this->palette[i].rgbGreen != i
+			|| this->palette[i].rgbBlue != i)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+void CImgProcDoc::DisplayPalette(std::vector<RGBQUAD>& plt)
+{
+	CString s_plt;
+	if (plt.size() == 0)
+	{
+		AfxMessageBox(_T("Palette not found!"));
+	}
+	else
+	{
+		for (size_t i = 0; i < plt.size(); ++i)
+		{
+			s_plt.AppendFormat(_T("[%3llu]0X%06X\t"), i, *(unsigned int*)&plt[i]);
+			if (i % 8 == 7) { s_plt.AppendChar('\n'); }
+		}
+		AfxMessageBox(s_plt);
+	}
+}
+
 RGBQUAD CImgProcDoc::MapColor(const RGBQUAD& rgb)
 {
 	if (this->GetColorBits() == 8 && this->palette.size() > 0)
@@ -300,6 +340,36 @@ RGBQUAD CImgProcDoc::MapColor(const RGBQUAD& rgb)
 	}
 	return rgb;
 }
+
+RGBQUAD CImgProcDoc::MapRGB24ToGrey(const RGBQUAD& rgb)
+{
+	RGBQUAD ans;
+	// note: 心理学经验公式 Gray = R * 0.299 + G * 0.587 + B * 0.114
+	ans.rgbRed = ans.rgbGreen = ans.rgbBlue =
+		(rgb.rgbRed * 38 + rgb.rgbGreen * 75 + rgb.rgbBlue * 15) >> 7;
+	ans.rgbReserved = 0;
+	return ans;
+}
+
+int CImgProcDoc::MapRGB24ToPalette(const RGBQUAD& rgb, std::vector<RGBQUAD>& plt)
+{
+	// note: 遍历调色板，取最邻近颜色值
+	DWORD minDist = ~0UL;
+	int val = 0;
+	for (size_t i = 0; i < plt.size(); ++i)
+	{
+		DWORD dist = ((long)rgb.rgbRed - plt[i].rgbRed) * ((long)rgb.rgbRed - plt[i].rgbRed) +
+			((long)rgb.rgbGreen - plt[i].rgbGreen) * ((long)rgb.rgbGreen - plt[i].rgbGreen) +
+			((long)rgb.rgbBlue - plt[i].rgbBlue) * ((long)rgb.rgbBlue - plt[i].rgbBlue);
+		if (dist < minDist)
+		{
+			minDist = dist;
+			val = (int)i;
+		}
+	}
+	return val;
+}
+
 
 //   象素操作
 //	 读象素颜色值： 灰度值（R=G=B) 或 RGB值
@@ -406,6 +476,207 @@ std::vector<DWORD> CImgProcDoc::GetHistogram()
 	return gram;
 }
 
+// note: 编码转换 ( 灰度/RGB24/索引颜色 )
+//
+// note: 灰度（8-bits）
+bool CImgProcDoc::CodingGrey(CImgProcDoc& newDoc)
+{
+	ASSERT(&newDoc != this);
+	newDoc.Clear();
+	// note: 在本软件中只处理 8位索引颜色/RGB24 到 灰度 的转换
+	WORD clrBits = this->GetColorBits();
+	if (clrBits != 8 && clrBits != 24)
+	{
+		AfxMessageBox(_T("BMP format not supported"));
+		newDoc = *this;
+		return false;
+	}
+
+	// note: newDoc使用默认256阶灰度调色板
+	newDoc.palette.resize(256);
+	for (int c = 0; c < 256; c++)
+	{
+		newDoc.palette[c] = RGBQUAD{ (unsigned char)c,(unsigned char)c,(unsigned char)c,0 };
+	}
+
+	// note: 基本规格
+	LONG orgWidth = this->bmpInfo.biWidth;
+	LONG orgHeight = this->bmpInfo.biHeight;
+	LONG bytesPerRow = 4 * ((orgWidth * 8 + 31) / 32);
+	LONG newImageSize = bytesPerRow * orgHeight;
+
+	// BITMAPFILEHEADER
+	newDoc.bmpHead.bfType = this->bmpHead.bfType;
+	newDoc.bmpHead.bfSize = newImageSize + newDoc.palette.size() * sizeof(RGBQUAD)
+		+ sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+	newDoc.bmpHead.bfOffBits = newDoc.bmpHead.bfSize - newImageSize;
+	// BITMAPINFOHEADER
+	newDoc.bmpInfo = this->bmpInfo;
+	newDoc.bmpInfo.biBitCount = 8;
+	newDoc.bmpInfo.biSizeImage = newImageSize;
+	newDoc.bmpInfo.biClrUsed = 256;
+	newDoc.bmpInfo.biClrImportant = 256;
+	// fill pixel
+	newDoc.pixelData.resize(newDoc.bmpInfo.biSizeImage);
+	for (LONG y = 0; y < this->bmpInfo.biHeight; ++y)
+	{
+		for (LONG x = 0; x < this->bmpInfo.biWidth; ++x)
+		{
+			RGBQUAD rgb;
+			this->GetPixel(x, y, &rgb);
+			// note: 8位索引颜色从调色板映射，RGB 24位色直接转换
+			rgb = CImgProcDoc::MapRGB24ToGrey(clrBits == 8 ? this->MapColor(rgb) : rgb);
+			newDoc.SetPixel(x, y, rgb);
+		}
+	}
+	return true;
+}
+
+// note: RGB24编码
+bool CImgProcDoc::CodingRGB24(CImgProcDoc& newDoc)
+{
+	ASSERT(&newDoc != this);
+	newDoc.Clear();
+	if (this->GetColorBits() == 24)
+	{
+		newDoc = *this;
+		return true;
+	}
+
+	// note: 在本软件中只处理 索引颜色（包括灰度） 到 RGB24 的转换
+	if (this->GetColorBits() != 8)
+	{
+		AfxMessageBox(_T("BMP format not supported"));
+		newDoc = *this;
+		return false;
+	}
+	// note: 处理 索引颜色 到 RGB24 的转换
+	LONG orgWidth = this->bmpInfo.biWidth;
+	LONG orgHeight = this->bmpInfo.biHeight;
+
+	LONG bytesPerRow = 4 * ((orgWidth * 24 + 31) / 32);
+	LONG newImageSize = bytesPerRow * orgHeight;
+
+	newDoc.bmpHead = this->bmpHead;
+	newDoc.bmpHead.bfSize = newImageSize + sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+	newDoc.bmpHead.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+
+	newDoc.bmpInfo = this->bmpInfo;
+	newDoc.bmpInfo.biSizeImage = newImageSize;
+	newDoc.bmpInfo.biBitCount = 24;
+	newDoc.bmpInfo.biClrUsed = 0;
+	newDoc.bmpInfo.biClrImportant = 0;
+
+	//newDoc.DisplayHeaderMessage();
+
+	newDoc.pixelData.resize(newImageSize, 0);
+
+	for (LONG y = 0; y < orgHeight; ++y)
+	{
+		for (LONG x = 0; x < orgWidth; ++x)
+		{
+			RGBQUAD rgb;
+			this->GetPixel(x, y, &rgb);
+			rgb = this->MapColor(rgb);
+			newDoc.SetPixel(x, y, rgb);
+		}
+	}
+
+	return true;
+}
+
+bool CImgProcDoc::CodingIndexColor(CImgProcDoc& newDoc)
+{
+	ASSERT(&newDoc != this);
+	newDoc.Clear();
+	if (this->GetColorBits() == 8)
+	{
+		newDoc = *this;
+		return true;
+	}
+
+	// note: 在本软件中只处理 索引颜色（包括灰度） 到 RGB24 的转换
+	if (this->GetColorBits() != 24)
+	{
+		AfxMessageBox(_T("BMP format not supported"));
+		newDoc = *this;
+		return false;
+	}
+	// note: 基本规格
+	LONG orgWidth = this->bmpInfo.biWidth;
+	LONG orgHeight = this->bmpInfo.biHeight;
+	LONG bytesPerRow = 4 * ((orgWidth * 8 + 31) / 32);
+	LONG newImageSize = bytesPerRow * orgHeight;
+
+	// BITMAPFILEHEADER
+	newDoc.bmpHead.bfType = this->bmpHead.bfType;
+
+	// BITMAPINFOHEADER
+	newDoc.bmpInfo = this->bmpInfo;
+	newDoc.bmpInfo.biBitCount = 8;
+	newDoc.bmpInfo.biSizeImage = newImageSize;
+
+	// 八叉树颜色量化（生成调色板）
+	SrColorQuant octree;
+	LONG pixelCnt = orgWidth * orgHeight * 3;
+	int clrCnt = 0;
+	unsigned char* pBuf = new unsigned char[pixelCnt * 3];
+	for (LONG y = 0; y < orgHeight; ++y)
+	{
+		for (LONG x = 0; x < orgWidth; ++x)
+		{
+			RGBQUAD rgb;
+			this->GetPixel(x, y, &rgb);
+			pBuf[3 * (y * orgWidth + x)] = rgb.rgbRed;
+			pBuf[3 * (y * orgWidth + x) + 1] = rgb.rgbGreen;
+			pBuf[3 * (y * orgWidth + x) + 2] = rgb.rgbBlue;
+		}
+	}
+	clrCnt = octree.buildOctree(pBuf, pixelCnt, 256);
+	ASSERT(clrCnt == octree.getLeafNodeCount());
+	delete[] pBuf; pBuf = nullptr;
+	size_t pltLen = static_cast<size_t>(octree.getLeafNodeCount()) * 3;
+	unsigned char* plt = new unsigned char[pltLen];
+	octree.getColorPallette(plt);
+	for (size_t i = 0; i < pltLen; i += 3)
+	{
+		newDoc.palette.push_back(RGBQUAD{ plt[i + 2],plt[i + 1],plt[i],0 });
+	}
+	delete[] plt; plt = nullptr;
+	// note: 量化结束
+
+#ifdef _DEBUG
+	CImgProcDoc::DisplayPalette(newDoc.palette);
+	newDoc.DisplayHeaderMessage();
+#endif // END _DEBUG
+
+	// BITMAPFILEHEADER 体积偏移量参数
+	newDoc.bmpHead.bfSize = newImageSize + newDoc.palette.size() * sizeof(RGBQUAD)
+		+ sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+	newDoc.bmpHead.bfOffBits = newDoc.bmpHead.bfSize - newImageSize;
+
+	// BITMAPINFOHEADER 调色板参数
+	newDoc.bmpInfo.biClrUsed = clrCnt;
+	newDoc.bmpInfo.biClrImportant = clrCnt;
+
+	// fill pixel
+	newDoc.pixelData.resize(newDoc.bmpInfo.biSizeImage);
+	for (LONG y = 0; y < this->bmpInfo.biHeight; ++y)
+	{
+		for (LONG x = 0; x < this->bmpInfo.biWidth; ++x)
+		{
+			RGBQUAD rgb;
+			this->GetPixel(x, y, &rgb);
+			unsigned char greyVal = (unsigned char)CImgProcDoc::MapRGB24ToPalette(rgb, newDoc.palette);
+			newDoc.SetPixel(x, y, RGBQUAD{ greyVal,greyVal,greyVal,0 });
+		}
+	}
+
+	return true;
+}
+
+
+
 // 图像插值
 /**
 	 功能: 图像插值
@@ -417,47 +688,91 @@ std::vector<DWORD> CImgProcDoc::GetHistogram()
 **/
 void CImgProcDoc::ImageInterpolation(CImgProcDoc& newDoc, double factor_w, double factor_h, INTERPOLATION_MODE nMethod)
 {
-	BITMAPFILEHEADER* pFileHeader = &this->bmpHead;
-
-	LONG orgWidth = this->bmpInfo.biWidth;
-	LONG orgHeight = this->bmpInfo.biHeight;
-	LONG colorBits = this->bmpInfo.biBitCount;
-	LONG newWidth = (LONG)((double)orgWidth * factor_w + 0.5);
-	LONG newHeight = (LONG)((double)orgHeight * factor_h + 0.5);
-
-	LONG bytesPerRow = 4 * ((newWidth * colorBits + 31) / 32);
-	LONG newImageSize = bytesPerRow * newHeight;
-
-	newDoc.bmpHead = this->bmpHead;
-	newDoc.bmpHead.bfSize = newImageSize + this->bmpHead.bfOffBits;
-	newDoc.bmpInfo = this->bmpInfo;
-	newDoc.bmpInfo.biWidth = newWidth;
-	newDoc.bmpInfo.biHeight = newHeight;
-	newDoc.bmpInfo.biSizeImage = bytesPerRow * newHeight;
-	newDoc.palette = this->palette;
-	newDoc.pixelData.resize(newImageSize);
-
-	for (LONG y = 0; y < newHeight; ++y)
+	switch (nMethod)
 	{
-		double fy = (double)y / factor_h;
-		for (LONG x = 0; x < newWidth; ++x)
-		{
-			RGBQUAD rgb{ 0,0,0,0 };
-			double fx = (double)x / factor_w;
+	//最临近插值法
+	case INTERPOLATION_MODE::DEFAULT: case INTERPOLATION_MODE::NEAREST:
+	{
+		LONG orgWidth = this->bmpInfo.biWidth;
+		LONG orgHeight = this->bmpInfo.biHeight;
+		LONG colorBits = this->bmpInfo.biBitCount;
+		LONG newWidth = (LONG)((double)orgWidth * factor_w + 0.5);
+		LONG newHeight = (LONG)((double)orgHeight * factor_h + 0.5);
+		LONG bytesPerRow = 4 * ((newWidth * colorBits + 31) / 32);
+		LONG newImageSize = bytesPerRow * newHeight;
 
-			switch (nMethod)
+		// note: BITMAPFILEHEADER
+		newDoc.bmpHead = this->bmpHead;
+		newDoc.bmpHead.bfSize = newImageSize + this->bmpHead.bfOffBits;
+
+		// note: BITMAPINFOHEADER
+		newDoc.bmpInfo = this->bmpInfo;
+		newDoc.bmpInfo.biWidth = newWidth;
+		newDoc.bmpInfo.biHeight = newHeight;
+		newDoc.bmpInfo.biSizeImage = bytesPerRow * newHeight;
+		newDoc.palette = this->palette;
+		newDoc.pixelData.resize(newImageSize);
+
+		// note: fill pixel
+		for (LONG y = 0; y < newHeight; ++y)
+		{
+			double fy = (double)y / factor_h;
+			for (LONG x = 0; x < newWidth; ++x)
 			{
-			//最临近插值法
-			case INTERPOLATION_MODE::DEFAULT: case INTERPOLATION_MODE::NEAREST:
-			{	
+				RGBQUAD rgb{ 0,0,0,0 };
+				double fx = (double)x / factor_w;
+
 				LONG xx = min((LONG)(fx + 0.5), orgWidth - 1);
 				LONG yy = min((LONG)(fy + 0.5), orgHeight - 1);
 				this->GetPixel(xx, yy, &rgb);
-				break;
+				newDoc.SetPixel(x, y, rgb);
 			}
-			//(双)线性插值法
-			case INTERPOLATION_MODE::BILINEAR:
+		}
+		break;
+	}
+	//(双)线性插值法
+	case INTERPOLATION_MODE::BILINEAR:
+	{
+		CImgProcDoc tmpDoc24, tmpNewDoc;
+		CImgProcDoc* srcDoc = this, * dstDoc = &newDoc;
+		bool transit = false; // 标记是否使用中转文档
+		if (this->GetColorBits() == 8 && this->GetPalette().size() > 0 && !this->IsDefaultPalette())
+		{
+			// note: 如果是索引颜色，先转换为RGB24编码进行双线性插值
+			this->CodingRGB24(tmpDoc24);
+			srcDoc = &tmpDoc24;
+			dstDoc = &tmpNewDoc;
+			transit = true;
+		}
+		LONG orgWidth = srcDoc->bmpInfo.biWidth;
+		LONG orgHeight = srcDoc->bmpInfo.biHeight;
+		LONG colorBits = srcDoc->bmpInfo.biBitCount;
+		LONG newWidth = (LONG)((double)orgWidth * factor_w + 0.5);
+		LONG newHeight = (LONG)((double)orgHeight * factor_h + 0.5);
+		LONG bytesPerRow = 4 * ((newWidth * colorBits + 31) / 32);
+		LONG newImageSize = bytesPerRow * newHeight;
+
+		// note: BITMAPFILEHEADER
+		dstDoc->bmpHead = srcDoc->bmpHead;
+		dstDoc->bmpHead.bfSize = newImageSize + srcDoc->bmpHead.bfOffBits;
+
+		// note: BITMAPINFOHEADER
+		dstDoc->bmpInfo = srcDoc->bmpInfo;
+		dstDoc->bmpInfo.biWidth = newWidth;
+		dstDoc->bmpInfo.biHeight = newHeight;
+		dstDoc->bmpInfo.biSizeImage = bytesPerRow * newHeight;
+		dstDoc->palette = srcDoc->palette;
+		dstDoc->pixelData.resize(newImageSize);
+
+		// note: fill pixel
+		for (LONG y = 0; y < newHeight; ++y)
+		{
+			double fy = (double)y / factor_h;
+			for (LONG x = 0; x < newWidth; ++x)
 			{
+				RGBQUAD rgb{ 0,0,0,0 };
+				double fx = (double)x / factor_w;
+
 				RGBQUAD rgbLT, rgbRT, rgbLB, rgbRB;
 				LONG   x1 = (LONG)fx;
 				LONG   x2 = min(x1 + 1L, orgWidth - 1L);
@@ -465,24 +780,28 @@ void CImgProcDoc::ImageInterpolation(CImgProcDoc& newDoc, double factor_w, doubl
 				LONG   y1 = (LONG)fy;
 				LONG   y2 = min(y1 + 1L, orgHeight - 1L);
 				double dy = (double)fy - (double)y1;
-				this->GetPixel(x1, y1, &rgbLT);
-				this->GetPixel(x2, y1, &rgbRT);
-				this->GetPixel(x1, y2, &rgbLB);
-				this->GetPixel(x2, y2, &rgbRB);
+				srcDoc->GetPixel(x1, y1, &rgbLT);
+				srcDoc->GetPixel(x2, y1, &rgbRT);
+				srcDoc->GetPixel(x1, y2, &rgbLB);
+				srcDoc->GetPixel(x2, y2, &rgbRB);
 				for (int N = 0; N < 4; N++)
 				{
 					double v1 = ((BYTE*)&rgbLT)[N] + dy * (((BYTE*)&rgbLB)[N] - ((BYTE*)&rgbLT)[N]);
 					double v2 = ((BYTE*)&rgbRT)[N] + dy * (((BYTE*)&rgbRB)[N] - ((BYTE*)&rgbRT)[N]);
 					((BYTE*)&rgb)[N] = (int)(v1 + dx * (v2 - v1) + 0.5);
 				}
-				break;
+				dstDoc->SetPixel(x, y, rgb);
 			}
-			default: break;
-			}
-			newDoc.SetPixel(x, y, rgb);
 		}
+
+		// ntoe: 如果使用中转文档处理，则重新转换为索引颜色图像
+		if (transit) { dstDoc->CodingIndexColor(newDoc); }
+		break;
+	}
+	default: break;
 	}
 
+	return;
 }
 
 
@@ -522,9 +841,49 @@ void CImgProcDoc::OnImageprocessingSavetonewbmpfile()
 	this->OnSaveDocument(NULL);
 }
 
-
 void CImgProcDoc::OnImageprocessingDispplayfileheader()
 {
 	// TODO: 在此添加命令处理程序代码
 	this->DisplayHeaderMessage();
+}
+
+
+void CImgProcDoc::OnUpdateTransferIndexcolor(CCmdUI* pCmdUI)
+{
+	// TODO: 在此添加命令更新用户界面处理程序代码
+	pCmdUI->Enable(GetColorBits() != 8);
+}
+
+
+void CImgProcDoc::OnUpdateTransferRgb24(CCmdUI* pCmdUI)
+{
+	// TODO: 在此添加命令更新用户界面处理程序代码
+	pCmdUI->Enable(GetColorBits() != 24);
+}
+
+
+void CImgProcDoc::OnTransferRgb24()
+{
+	// TODO: 在此添加命令处理程序代码
+	CImgProcApp* pApp = (CImgProcApp*)AfxGetApp();
+	this->CodingRGB24(pApp->GetTransDoc());
+	pApp->ManualFileNew();
+}
+
+
+void CImgProcDoc::OnTransferIndexcolor()
+{
+	// TODO: 在此添加命令处理程序代码
+	CImgProcApp* pApp = (CImgProcApp*)AfxGetApp();
+	this->CodingIndexColor(pApp->GetTransDoc());
+	pApp->ManualFileNew();
+}
+
+
+void CImgProcDoc::OnTransferGrey()
+{
+	// TODO: 在此添加命令处理程序代码
+	CImgProcApp* pApp = (CImgProcApp*)AfxGetApp();
+	this->CodingGrey(pApp->GetTransDoc());
+	pApp->ManualFileNew();
 }
