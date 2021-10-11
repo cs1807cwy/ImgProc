@@ -183,6 +183,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CBRIGHTNESSDLG.h" />
     <ClInclude Include="CGAUSSIANSMOOTHDLG.h" />
     <ClInclude Include="CGETPIXELDLG.h" />
     <ClInclude Include="ChildFrm.h" />
@@ -202,6 +203,7 @@
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CBRIGHTNESSDLG.cpp" />
     <ClCompile Include="CGAUSSIANSMOOTHDLG.cpp" />
     <ClCompile Include="CGETPIXELDLG.cpp" />
     <ClCompile Include="ChildFrm.cpp" />

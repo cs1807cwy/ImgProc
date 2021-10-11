@@ -98,6 +98,7 @@ public:
 	bool CodingGrey(CImgProcDoc& newDoc);
 	bool CodingRGB24(CImgProcDoc& newDoc);
 	bool CodingIndexColor(CImgProcDoc& newDoc);
+	void BrightnessContrast(CImgProcDoc& newDoc, LONG brightnessModifier, double contrastMultiplier);
 
 	enum INTERPOLATION_MODE { DEFAULT, NEAREST, BILINEAR };
 	void ImageInterpolation(CImgProcDoc& newDoc, double factor_w, double factor_h, INTERPOLATION_MODE nMethod);

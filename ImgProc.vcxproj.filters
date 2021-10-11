@@ -72,6 +72,9 @@
     <ClInclude Include="CGAUSSIANSMOOTHDLG.h">
       <Filter>头文件\Dialog</Filter>
     </ClInclude>
+    <ClInclude Include="CBRIGHTNESSDLG.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ImgProc.cpp">
@@ -115,6 +118,9 @@
     </ClCompile>
     <ClCompile Include="CGAUSSIANSMOOTHDLG.cpp">
       <Filter>源文件\Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="CBRIGHTNESSDLG.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

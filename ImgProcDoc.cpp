@@ -676,7 +676,61 @@ bool CImgProcDoc::CodingIndexColor(CImgProcDoc& newDoc)
 	return true;
 }
 
+void CImgProcDoc::BrightnessContrast(CImgProcDoc& newDoc, LONG brightnessModifier, double contrastMultiplier)
+{
+	if (&newDoc != this)
+	{
+		newDoc.Clear();
+		newDoc = *this;
+	}
 
+	// note: RGB平均值
+	double avgRed = 0.0, avgGreen = 0.0, avgBlue = 0.0;
+	for (LONG y = 0; y < this->bmpInfo.biHeight; ++y)
+	{
+		for (LONG x = 0; x < this->bmpInfo.biWidth; ++x)
+		{
+			RGBQUAD rgb;
+			this->GetPixel(x, y, &rgb);
+			avgRed += (double)rgb.rgbRed;
+			avgGreen += (double)rgb.rgbGreen;
+			avgBlue += (double)rgb.rgbBlue;
+		}
+	}
+	DWORD pixelTotal = this->bmpInfo.biHeight * this->bmpInfo.biWidth;
+	avgRed /= (double)pixelTotal;
+	avgGreen /= (double)pixelTotal;
+	avgBlue /= (double)pixelTotal;
+
+	for (LONG y = 0; y < this->bmpInfo.biHeight; ++y)
+	{
+		for (LONG x = 0; x < this->bmpInfo.biWidth; ++x)
+		{
+			RGBQUAD rgb;
+			this->GetPixel(x, y, &rgb);
+			double red = (double)rgb.rgbRed, 
+				green = (double)rgb.rgbGreen,
+				blue = (double)rgb.rgbBlue;
+
+			// note: modify contrast & brightness
+			red = avgRed + contrastMultiplier * (red - avgRed) + (double)brightnessModifier;
+			green = avgGreen + contrastMultiplier * (green - avgGreen) + (double)brightnessModifier;
+			blue = avgBlue + contrastMultiplier * (blue - avgBlue) + (double)brightnessModifier;
+
+			LONG hLim = 255;
+			if (this->GetColorBits() == 8 && this->palette.size() > 0)
+			{
+				hLim = this->palette.size() - 1;
+			}
+			// note: curl to (BYTE)[0,hLim]
+			rgb.rgbRed = (BYTE)min((double)hLim, max(0.0, red));
+			rgb.rgbGreen = (BYTE)min((double)hLim, max(0.0, green));
+			rgb.rgbBlue = (BYTE)min((double)hLim, max(0.0, blue));
+
+			newDoc.SetPixel(x, y, rgb);
+		}
+	}
+}
 
 // 图像插值
 /**

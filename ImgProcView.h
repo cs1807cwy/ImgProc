@@ -64,6 +64,7 @@ public:
 	afx_msg void OnImageprocessingGaussiansmoothing();
 	afx_msg void OnUpdateImageprocessingHistogramequalization(CCmdUI* pCmdUI);
 	afx_msg void OnImageprocessingHistogramequalization();
+	afx_msg void OnInspectionBrightness();
 };
 
 #ifndef _DEBUG  // ImgProcView.cpp 中的调试版本

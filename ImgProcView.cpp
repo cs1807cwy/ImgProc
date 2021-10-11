@@ -25,6 +25,7 @@
 #include "CINTERPOLATIONDLG.h"
 #include "CMEDIANFILTERDLG.h"
 #include "CGAUSSIANSMOOTHDLG.h"
+#include "CBRIGHTNESSDLG.h"
 
 
 // CImgProcView
@@ -53,6 +54,7 @@ BEGIN_MESSAGE_MAP(CImgProcView, CView)
 	ON_COMMAND(ID_IMAGEPROCESSING_GAUSSIANSMOOTHING, &CImgProcView::OnImageprocessingGaussiansmoothing)
 	ON_UPDATE_COMMAND_UI(ID_IMAGEPROCESSING_HISTOGRAMEQUALIZATION, &CImgProcView::OnUpdateImageprocessingHistogramequalization)
 	ON_COMMAND(ID_IMAGEPROCESSING_HISTOGRAMEQUALIZATION, &CImgProcView::OnImageprocessingHistogramequalization)
+	ON_COMMAND(ID_INSPECTION_BRIGHTNESS, &CImgProcView::OnInspectionBrightness)
 END_MESSAGE_MAP()
 
 // CImgProcView 构造/析构
@@ -451,4 +453,12 @@ void CImgProcView::OnImageprocessingHistogramequalization()
 	CImgProcDoc* pDoc = (CImgProcDoc*)this->GetDocument();
 	pDoc->HistogramEqualization(pApp->GetTransDoc());
 	pApp->ManualFileNew();
+}
+
+
+void CImgProcView::OnInspectionBrightness()
+{
+	// TODO: 在此添加命令处理程序代码
+	CBRIGHTNESSDLG brightnessDlg;
+	brightnessDlg.DoModal();
 }
