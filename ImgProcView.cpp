@@ -23,6 +23,8 @@
 #include "CSETPIXELDLG.h"
 #include "CSETPIXELGREYDLG.h"
 #include "CINTERPOLATIONDLG.h"
+#include "CMEDIANFILTERDLG.h"
+#include "CGAUSSIANSMOOTHDLG.h"
 
 
 // CImgProcView
@@ -45,6 +47,12 @@ BEGIN_MESSAGE_MAP(CImgProcView, CView)
 	ON_COMMAND(ID_IMAGEPROCESSING_IMAGEINTERPOLATION, &CImgProcView::OnImageprocessingImageinterpolation)
 	ON_COMMAND(ID_INSPECTION_HISTOGRAM, &CImgProcView::OnInspectionHistogram)
 	ON_UPDATE_COMMAND_UI(ID_INSPECTION_HISTOGRAM, &CImgProcView::OnUpdateInspectionHistogram)
+	ON_UPDATE_COMMAND_UI(ID_IMAGEPROCESSING_MEDIANFILTERING, &CImgProcView::OnUpdateImageprocessingMedianfiltering)
+	ON_UPDATE_COMMAND_UI(ID_IMAGEPROCESSING_GAUSSIANSMOOTHING, &CImgProcView::OnUpdateImageprocessingGaussiansmoothing)
+	ON_COMMAND(ID_IMAGEPROCESSING_MEDIANFILTERING, &CImgProcView::OnImageprocessingMedianfiltering)
+	ON_COMMAND(ID_IMAGEPROCESSING_GAUSSIANSMOOTHING, &CImgProcView::OnImageprocessingGaussiansmoothing)
+	ON_UPDATE_COMMAND_UI(ID_IMAGEPROCESSING_HISTOGRAMEQUALIZATION, &CImgProcView::OnUpdateImageprocessingHistogramequalization)
+	ON_COMMAND(ID_IMAGEPROCESSING_HISTOGRAMEQUALIZATION, &CImgProcView::OnImageprocessingHistogramequalization)
 END_MESSAGE_MAP()
 
 // CImgProcView 构造/析构
@@ -384,7 +392,7 @@ void CImgProcView::OnInspectionHistogram()
 	CString hinfo;
 	for (size_t i = 0; i < histogram.size(); ++i)
 	{
-		hinfo.AppendFormat(_T("Grey[%3llu] %lu"), i, histogram[i]);
+		hinfo.AppendFormat(_T("Val[%3llu] %-8lu"), i, histogram[i]);
 		if (i % 8 == 7) { hinfo.AppendChar(_T('\n')); }
 		else { hinfo.AppendChar(_T('\t')); }
 	}
@@ -396,4 +404,51 @@ void CImgProcView::OnUpdateInspectionHistogram(CCmdUI* pCmdUI)
 {
 	// TODO: 在此添加命令更新用户界面处理程序代码
 	pCmdUI->Enable(GetDocument()->GetColorBits() == 8);
+}
+
+
+void CImgProcView::OnUpdateImageprocessingMedianfiltering(CCmdUI* pCmdUI)
+{
+	// TODO: 在此添加命令更新用户界面处理程序代码
+	pCmdUI->Enable(GetDocument()->GetColorBits() == 8);
+}
+
+
+
+void CImgProcView::OnImageprocessingMedianfiltering()
+{
+	// TODO: 在此添加命令处理程序代码
+	CMEDIANFILTERDLG medianFilterDlg;
+	medianFilterDlg.DoModal();
+}
+
+
+void CImgProcView::OnUpdateImageprocessingGaussiansmoothing(CCmdUI* pCmdUI)
+{
+	// TODO: 在此添加命令更新用户界面处理程序代码
+	pCmdUI->Enable(GetDocument()->GetColorBits() == 8);
+}
+
+void CImgProcView::OnImageprocessingGaussiansmoothing()
+{
+	// TODO: 在此添加命令处理程序代码
+	CGAUSSIANSMOOTHDLG gaussianSmoothDlg;
+	gaussianSmoothDlg.DoModal();
+}
+
+
+void CImgProcView::OnUpdateImageprocessingHistogramequalization(CCmdUI* pCmdUI)
+{
+	// TODO: 在此添加命令更新用户界面处理程序代码
+	pCmdUI->Enable(GetDocument()->GetColorBits() == 8);
+}
+
+
+void CImgProcView::OnImageprocessingHistogramequalization()
+{
+	// TODO: 在此添加命令处理程序代码
+	CImgProcApp* pApp = (CImgProcApp*)AfxGetApp();
+	CImgProcDoc* pDoc = (CImgProcDoc*)this->GetDocument();
+	pDoc->HistogramEqualization(pApp->GetTransDoc());
+	pApp->ManualFileNew();
 }

@@ -49,10 +49,10 @@ void CGETPIXELDLG::FillInspectWnd(const std::vector<RGBQUAD>& clrMat5x5, RGBQUAD
 			Pic(x, y).GetClientRect(&prect);
 
 			// note: 绘制像素色块
-			if (clrMat5x5[y * 5 + x].rgbReserved == 0)
+			if (clrMat5x5[(size_t)y * 5 + x].rgbReserved == 0)
 			{
 				// 无效色块（超出图片边界）
-				RGBQUAD CLR_CHG{ clrMat5x5[y * 5 + x].rgbBlue, clrMat5x5[y * 5 + x].rgbGreen, clrMat5x5[y * 5 + x].rgbRed,(BYTE)0 };	// 变换色
+				RGBQUAD CLR_CHG{ clrMat5x5[(size_t)y * 5 + x].rgbBlue, clrMat5x5[(size_t)y * 5 + x].rgbGreen, clrMat5x5[(size_t)y * 5 + x].rgbRed,(BYTE)0 };	// 变换色
 				int rectWidth = prect.Width();
 				int rectHeight = prect.Height();
 
@@ -82,7 +82,7 @@ void CGETPIXELDLG::FillInspectWnd(const std::vector<RGBQUAD>& clrMat5x5, RGBQUAD
 			{
 				// 有效色块
 				FillRect(Pic(x, y).GetDC()->GetSafeHdc(), &prect,
-					CBrush(RGB(clrMat5x5[y * 5 + x].rgbRed, clrMat5x5[y * 5 + x].rgbGreen, clrMat5x5[y * 5 + x].rgbBlue)));
+					CBrush(RGB(clrMat5x5[(size_t)y * 5 + x].rgbRed, clrMat5x5[(size_t)y * 5 + x].rgbGreen, clrMat5x5[(size_t)y * 5 + x].rgbBlue)));
 			}
 
 			// note: 绘制分隔框
