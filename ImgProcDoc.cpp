@@ -22,6 +22,7 @@
 #include "MainFrm.h"
 #include "ChildFrm.h"
 #include "SrColorQuant.h"
+#include <unordered_map>
 
 // CImgProcDoc
 
@@ -398,8 +399,8 @@ long CImgProcDoc::GetPixel(LONG x, LONG y, RGBQUAD rgb[1], bool bGray[1])
 		if (bGray != NULL) *bGray = false;
 		nOffInImage += 3L * x;
 		rgb[0].rgbReserved = 0;
-		rgb[0].rgbRed = this->pixelData[nOffInImage + 2];
-		rgb[0].rgbGreen = this->pixelData[nOffInImage + 1];
+		rgb[0].rgbRed = this->pixelData[(size_t)nOffInImage + 2];
+		rgb[0].rgbGreen = this->pixelData[(size_t)nOffInImage + 1L];
 		rgb[0].rgbBlue = this->pixelData[nOffInImage];
 	}
 	else
@@ -449,8 +450,8 @@ void CImgProcDoc::SetPixel(LONG x, LONG y, RGBQUAD rgb, int width, int height)
 				LONG nOffInImage = (nImageHeight - 1 - ty) * nBytesPerRow;
 				nOffInImage += (3 * tx);
 				this->pixelData[nOffInImage] = rgb.rgbBlue;
-				this->pixelData[nOffInImage + 1] = rgb.rgbGreen;
-				this->pixelData[nOffInImage + 2] = rgb.rgbRed;
+				this->pixelData[(size_t)nOffInImage + 1L] = rgb.rgbGreen;
+				this->pixelData[(size_t)nOffInImage + 2L] = rgb.rgbRed;
 			}
 		}
 	}
@@ -620,7 +621,7 @@ bool CImgProcDoc::CodingIndexColor(CImgProcDoc& newDoc)
 	SrColorQuant octree;
 	LONG pixelCnt = orgWidth * orgHeight * 3;
 	int clrCnt = 0;
-	unsigned char* pBuf = new unsigned char[pixelCnt * 3];
+	unsigned char* pBuf = new unsigned char[(size_t)pixelCnt * 3];
 	for (LONG y = 0; y < orgHeight; ++y)
 	{
 		for (LONG x = 0; x < orgWidth; ++x)
@@ -681,13 +682,13 @@ bool CImgProcDoc::CodingIndexColor(CImgProcDoc& newDoc)
 /**
 	 功能: 图像插值
 			 nMethod  插值算法
-					0 = 最临近插值法
-					1 = (双)线性插值法
-	 返回: 新图像的BMP文件缓冲区首地址
-					 NULL 表示失败（内存不足）
+					0-DEFAULT/1-NEAREST = 最临近插值法
+					2-BILINEAR = (双)线性插值法
 **/
 void CImgProcDoc::ImageInterpolation(CImgProcDoc& newDoc, double factor_w, double factor_h, INTERPOLATION_MODE nMethod)
 {
+	ASSERT(&newDoc != this);
+	newDoc.Clear();
 	switch (nMethod)
 	{
 	//最临近插值法
@@ -804,6 +805,230 @@ void CImgProcDoc::ImageInterpolation(CImgProcDoc& newDoc, double factor_w, doubl
 	return;
 }
 
+// note: 中值滤波(灰度)
+// radius: 窗口半径 size = (radius * 2 - 1) eg: radius = 2, size = 3x3
+// cenw: 中心权值
+void CImgProcDoc::ImageMedianFiltering(CImgProcDoc& newDoc, DWORD radius, double cenw)
+{
+	ASSERT(&newDoc != this);
+	newDoc.Clear();
+	ASSERT(this->GetColorBits() == 8);
+	ASSERT(radius > 0);
+
+	newDoc.bmpHead = this->bmpHead;
+	newDoc.bmpInfo = this->bmpInfo;
+	newDoc.palette = this->palette;
+	newDoc.pixelData.resize(this->pixelData.size());
+
+	// note: fill pixel
+	for (LONG y = 0; y < this->bmpInfo.biHeight; ++y)
+	{
+		for (LONG x = 0; x < this->bmpInfo.biWidth; ++x)
+		{
+			// note: 剔除超出图像边界的像素
+			LONG begy = max(0, y - (LONG)radius + 1);
+			LONG endy = min(this->bmpInfo.biHeight, y + (LONG)radius);
+			LONG begx = max(0, x - (LONG)radius + 1);
+			LONG endx = min(this->bmpInfo.biWidth, x + (LONG)radius);
+
+			// CWMF滤波
+			double minAggregatedDist = INFINITY;
+			RGBQUAD minClr{ 0,0,0,0 };
+			// note: 遍历窗口内各像素，计算聚集距离，取最小
+			for (LONG ty = begy; ty < endy; ++ty)
+			{
+				for (LONG tx = begx; tx < endx; ++tx)
+				{
+					TRACE2("tx=%ld,ty=%ld\n", tx, ty);
+					double ADist = 0.0;
+					RGBQUAD srgb; this->GetPixel(tx, ty, &srgb);
+					for (LONG r = begy; r < endy; ++r)
+					{
+						for (LONG c = begx; c < endx; ++c)
+						{
+							RGBQUAD trgb; this->GetPixel(c, r, &trgb);
+							if (c == x && r == y) { ADist += cenw * abs((double)(srgb.rgbRed - trgb.rgbRed)); }
+							else { ADist += abs((double)(srgb.rgbRed - trgb.rgbRed)); }
+						}
+					}
+					// minimize
+					if (minAggregatedDist > ADist)
+					{
+						minAggregatedDist = ADist;
+						minClr = srgb;
+					}
+				}
+			}
+			// 中值滤波后填入像素值
+			newDoc.SetPixel(x, y, minClr);
+		}
+	}
+}
+
+// note: 高斯平滑(灰度)
+// sigma: 方差
+void CImgProcDoc::ImageGaussianSmoothing(CImgProcDoc& newDoc, double sigma)
+{
+	ASSERT(&newDoc != this);
+	newDoc.Clear();
+	ASSERT(this->GetColorBits() == 8);
+	ASSERT(sigma >= 0.0);
+
+	// note: sigma=0 时可直接拷贝
+	if (sigma == 0.0) { newDoc = *this; return; }
+
+	newDoc.bmpHead = this->bmpHead;
+	newDoc.bmpInfo = this->bmpInfo;
+	newDoc.palette = this->palette;
+	newDoc.pixelData.resize(this->pixelData.size());
+
+	DWORD radius = (DWORD)sigma + 1;
+	DWORD size = (radius << 1) - 1;
+
+	// note: 构造默认权重矩阵（size * size）
+	std::vector<std::vector<double>> weightMatrix(size, std::vector<double>(size, 0.0));
+	const double denominator = -1.0 / (2.0 * sigma * sigma);
+	double sumMat = 0.0;
+	for (size_t y = 0; y < weightMatrix.size(); ++y)
+	{
+		for (size_t x = 0; x < weightMatrix[y].size(); ++x)
+		{
+			double dist_x = abs((double)x - radius + 1.0);
+			double dist_y = abs((double)y - radius + 1.0);
+			double dist2 = dist_x * dist_x + dist_y * dist_y;
+			sumMat += weightMatrix[y][x] = (dist2 > 9 * sigma * sigma) ? 0.0 : exp(dist2 * denominator);
+		}
+	}
+	// note: 总和归一化
+	for (size_t y = 0; y < weightMatrix.size(); ++y)
+	{
+		for (size_t x = 0; x < weightMatrix[y].size(); ++x)
+		{
+			if (weightMatrix[y][x] != 0.0) { weightMatrix[y][x] /= sumMat; }
+		}
+	}
+
+#ifdef _DEBUG
+	CString dbg;
+	dbg.AppendFormat(_T("Weight Matrix:\n[\n"));
+	for (auto row : weightMatrix)
+	{
+		dbg.AppendFormat(_T("["));
+		for (auto val : row)
+		{
+			dbg.AppendFormat(_T("%lf, "), val);
+		}
+		dbg.AppendFormat(_T("]\n"));
+	}
+	dbg.AppendFormat(_T("]\n"));
+	AfxMessageBox(dbg);
+#endif // _DEBUG
+
+	// note: fill pixel
+	for (LONG y = 0; y < this->bmpInfo.biHeight; ++y)
+	{
+		for (LONG x = 0; x < this->bmpInfo.biWidth; ++x)
+		{
+			// 计算统计区域参数
+			LONG begy = max(0, y - (LONG)radius + 1);
+			LONG endy = min(this->bmpInfo.biHeight, y + (LONG)radius);
+			LONG begx = max(0, x - (LONG)radius + 1);
+			LONG endx = min(this->bmpInfo.biWidth, x + (LONG)radius);
+			LONG height = endy - begy, width = endx - begx;
+
+			// note: 所有像素都在边界内
+			double avg = 0.0;
+			if (height == size && width == size)
+			{
+				// note: 灰度值加权平均
+				for (LONG ty = begy; ty < endy; ++ty)
+				{
+					for (LONG tx = begx; tx < endx; ++tx)
+					{
+						RGBQUAD trgb; this->GetPixel(tx, ty, &trgb);
+						avg += (double)trgb.rgbRed * weightMatrix[(size_t)ty - begy][(size_t)tx - begx];
+						//if (x == 73 && y == 15) { TRACE2("SIZE FIT v(%lf)w(%lf)\n", (double)trgb.rgbRed, weightMatrix[(size_t)ty - begy][(size_t)tx - begx]); }
+					}
+				}
+			}
+			// note: 剔除超出图像边界的像素
+			else
+			{
+				// 先生成剔除像素的权重矩阵
+				std::vector<std::vector<double>> fracWeightMatrix(height, std::vector<double>(width, 0.0));
+				double fracSumMat = 0.0;
+				for (size_t ty = begy; ty < fracWeightMatrix.size() + begy; ++ty)
+				{
+					for (size_t tx = begx; tx < fracWeightMatrix[(size_t)ty - begy].size() + begx; ++tx)
+					{
+						double dist_x = abs((double)tx - x);
+						double dist_y = abs((double)ty - y);
+						double dist2 = dist_x * dist_x + dist_y * dist_y;
+						fracSumMat += fracWeightMatrix[(size_t)ty - begy][(size_t)tx - begx]
+							= (dist2 > 9 * sigma * sigma) ? 0.0 : exp(dist2 * denominator);
+					}
+				}
+				// note: 总和归一化
+				for (size_t y = 0; y < fracWeightMatrix.size(); ++y)
+				{
+					for (size_t x = 0; x < fracWeightMatrix[y].size(); ++x)
+					{
+						if (fracWeightMatrix[y][x] != 0.0) { fracWeightMatrix[y][x] /= fracSumMat; }
+					}
+				}
+				// note: 灰度值加权平均
+				for (LONG ty = begy; ty < endy; ++ty)
+				{
+					for (LONG tx = begx; tx < endx; ++tx)
+					{
+						RGBQUAD trgb; this->GetPixel(tx, ty, &trgb);
+						avg += (double)trgb.rgbRed * fracWeightMatrix[(size_t)ty - begy][(size_t)tx - begx];
+					}
+				}
+			}
+			// 高斯平滑后填入像素值
+			BYTE gVal = (BYTE)(avg + 0.5);
+			RGBQUAD nrgb{ gVal,gVal,gVal,0 };
+			newDoc.SetPixel(x, y, nrgb);
+		}
+	}
+}
+
+// note: 直方图均衡化（灰度）
+void CImgProcDoc::HistogramEqualization(CImgProcDoc& newDoc)
+{
+	ASSERT(&newDoc != this);
+	newDoc.Clear();
+	ASSERT(this->GetColorBits() == 8);
+
+	newDoc.bmpHead = this->bmpHead;
+	newDoc.bmpInfo = this->bmpInfo;
+	newDoc.palette = this->palette;
+	newDoc.pixelData.resize(this->pixelData.size());
+
+	// note: 计算累积直方图
+	std::vector<DWORD> srcGram = this->GetHistogram();
+	for (size_t i = 1; i < srcGram.size(); ++i) { srcGram[i] += srcGram[i - 1]; }
+	
+	// note: 建立灰度值映射表
+	std::unordered_map<WORD, WORD> clrMap;
+	double factor = (double)(srcGram.size() - 1) / (double)srcGram.back();
+	for (size_t i = 0; i < srcGram.size(); ++i)
+	{
+		clrMap[(WORD)i] = (WORD)((double)srcGram[i] * factor + 0.5);
+	}
+
+	// note: fill pixel
+	for (LONG y = 0; y < this->bmpInfo.biHeight; ++y)
+	{
+		for (LONG x = 0; x < this->bmpInfo.biWidth; ++x)
+		{
+			RGBQUAD clr; this->GetPixel(x, y, &clr);
+			clr.rgbRed = clrMap[clr.rgbRed];
+			newDoc.SetPixel(x, y, clr);
+		}
+	}
+}
 
 
 void CImgProcDoc::DisplayHeaderMessage()
