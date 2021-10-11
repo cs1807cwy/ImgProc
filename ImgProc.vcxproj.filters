@@ -66,12 +66,6 @@
     <ClInclude Include="SrColorQuant.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="CMEDIANFILTERDLG.h">
-      <Filter>头文件\Dialog</Filter>
-    </ClInclude>
-    <ClInclude Include="CGAUSSIANSMOOTHDLG.h">
-      <Filter>头文件\Dialog</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ImgProc.cpp">
@@ -109,12 +103,6 @@
     </ClCompile>
     <ClCompile Include="SrColorQuant.cpp">
       <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="CMEDIANFILTERDLG.cpp">
-      <Filter>源文件\Dialog</Filter>
-    </ClCompile>
-    <ClCompile Include="CGAUSSIANSMOOTHDLG.cpp">
-      <Filter>源文件\Dialog</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

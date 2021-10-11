@@ -183,11 +183,9 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CGAUSSIANSMOOTHDLG.h" />
     <ClInclude Include="CGETPIXELDLG.h" />
     <ClInclude Include="ChildFrm.h" />
     <ClInclude Include="CINTERPOLATIONDLG.h" />
-    <ClInclude Include="CMEDIANFILTERDLG.h" />
     <ClInclude Include="CSETPIXELDLG.h" />
     <ClInclude Include="CSETPIXELGREYDLG.h" />
     <ClInclude Include="framework.h" />
@@ -202,11 +200,9 @@
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CGAUSSIANSMOOTHDLG.cpp" />
     <ClCompile Include="CGETPIXELDLG.cpp" />
     <ClCompile Include="ChildFrm.cpp" />
     <ClCompile Include="CINTERPOLATIONDLG.cpp" />
-    <ClCompile Include="CMEDIANFILTERDLG.cpp" />
     <ClCompile Include="CSETPIXELDLG.cpp" />
     <ClCompile Include="CSETPIXELGREYDLG.cpp" />
     <ClCompile Include="ImgProc.cpp" />

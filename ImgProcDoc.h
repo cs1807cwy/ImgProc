@@ -101,9 +101,6 @@ public:
 
 	enum INTERPOLATION_MODE { DEFAULT, NEAREST, BILINEAR };
 	void ImageInterpolation(CImgProcDoc& newDoc, double factor_w, double factor_h, INTERPOLATION_MODE nMethod);
-	void ImageMedianFiltering(CImgProcDoc& newDoc, DWORD radius, double cenw);
-	void ImageGaussianSmoothing(CImgProcDoc& newDoc, double sigma);
-	void HistogramEqualization(CImgProcDoc& newDoc);
 
 	afx_msg void OnImageprocessingSavetonewbmpfile();
 	afx_msg void OnImageprocessingDispplayfileheader();

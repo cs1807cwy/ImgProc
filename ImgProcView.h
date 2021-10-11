@@ -58,12 +58,6 @@ public:
 	afx_msg void OnImageprocessingImageinterpolation();
 	afx_msg void OnInspectionHistogram();
 	afx_msg void OnUpdateInspectionHistogram(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateImageprocessingMedianfiltering(CCmdUI* pCmdUI);
-	afx_msg void OnImageprocessingMedianfiltering();
-	afx_msg void OnUpdateImageprocessingGaussiansmoothing(CCmdUI* pCmdUI);
-	afx_msg void OnImageprocessingGaussiansmoothing();
-	afx_msg void OnUpdateImageprocessingHistogramequalization(CCmdUI* pCmdUI);
-	afx_msg void OnImageprocessingHistogramequalization();
 };
 
 #ifndef _DEBUG  // ImgProcView.cpp 中的调试版本
