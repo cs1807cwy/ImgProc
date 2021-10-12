@@ -44,6 +44,9 @@ END_MESSAGE_MAP()
 void CGAUSSIANSMOOTHDLG::OnBnClickedOk()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	// note: 处理可能的未写入更新
+	this->OnEnKillfocusGaussiansmoothEditSigma();
+
 	CImgProcDoc* pDoc = (CImgProcDoc*)((CMainFrame*)AfxGetMainWnd())->MDIGetActive()->GetActiveView()->GetDocument();
 	CImgProcApp* pApp = (CImgProcApp*)AfxGetApp();
 	pDoc->ImageGaussianSmoothing(pApp->GetTransDoc(), this->sigma);

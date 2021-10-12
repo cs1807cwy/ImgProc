@@ -65,6 +65,12 @@ public:
 	afx_msg void OnUpdateImageprocessingHistogramequalization(CCmdUI* pCmdUI);
 	afx_msg void OnImageprocessingHistogramequalization();
 	afx_msg void OnInspectionBrightness();
+	afx_msg void OnUpdateImageprocessingSharpeningbygradient(CCmdUI* pCmdUI);
+	afx_msg void OnImageprocessingSharpeningbygradient();
+	afx_msg void OnUpdateImageprocessingBilateralfiltering(CCmdUI* pCmdUI);
+	afx_msg void OnImageprocessingBilateralfiltering();
+	afx_msg void OnUpdateImageprocessingAddimpulsenoise(CCmdUI* pCmdUI);
+	afx_msg void OnImageprocessingAddimpulsenoise();
 };
 
 #ifndef _DEBUG  // ImgProcView.cpp 中的调试版本

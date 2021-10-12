@@ -73,7 +73,16 @@
       <Filter>头文件\Dialog</Filter>
     </ClInclude>
     <ClInclude Include="CBRIGHTNESSDLG.h">
-      <Filter>头文件</Filter>
+      <Filter>头文件\Dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="CSHARPENINGDLG.h">
+      <Filter>头文件\Dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="CBILATERALFILTERDLG.h">
+      <Filter>头文件\Dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="CADDIMPLUSENOISEDLG.h">
+      <Filter>头文件\Dialog</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -120,7 +129,16 @@
       <Filter>源文件\Dialog</Filter>
     </ClCompile>
     <ClCompile Include="CBRIGHTNESSDLG.cpp">
-      <Filter>源文件</Filter>
+      <Filter>源文件\Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="CSHARPENINGDLG.cpp">
+      <Filter>源文件\Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="CBILATERALFILTERDLG.cpp">
+      <Filter>源文件\Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="CADDIMPLUSENOISEDLG.cpp">
+      <Filter>源文件\Dialog</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

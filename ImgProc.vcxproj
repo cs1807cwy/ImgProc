@@ -183,6 +183,8 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CADDIMPLUSENOISEDLG.h" />
+    <ClInclude Include="CBILATERALFILTERDLG.h" />
     <ClInclude Include="CBRIGHTNESSDLG.h" />
     <ClInclude Include="CGAUSSIANSMOOTHDLG.h" />
     <ClInclude Include="CGETPIXELDLG.h" />
@@ -191,6 +193,7 @@
     <ClInclude Include="CMEDIANFILTERDLG.h" />
     <ClInclude Include="CSETPIXELDLG.h" />
     <ClInclude Include="CSETPIXELGREYDLG.h" />
+    <ClInclude Include="CSHARPENINGDLG.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="ImgProc.h" />
     <ClInclude Include="ImgProcDoc.h" />
@@ -203,6 +206,8 @@
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CADDIMPLUSENOISEDLG.cpp" />
+    <ClCompile Include="CBILATERALFILTERDLG.cpp" />
     <ClCompile Include="CBRIGHTNESSDLG.cpp" />
     <ClCompile Include="CGAUSSIANSMOOTHDLG.cpp" />
     <ClCompile Include="CGETPIXELDLG.cpp" />
@@ -211,6 +216,7 @@
     <ClCompile Include="CMEDIANFILTERDLG.cpp" />
     <ClCompile Include="CSETPIXELDLG.cpp" />
     <ClCompile Include="CSETPIXELGREYDLG.cpp" />
+    <ClCompile Include="CSHARPENINGDLG.cpp" />
     <ClCompile Include="ImgProc.cpp" />
     <ClCompile Include="ImgProcDoc.cpp" />
     <ClCompile Include="ImgProcView.cpp" />
