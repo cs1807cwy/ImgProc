@@ -51,10 +51,6 @@ void CBRIGHTNESSDLG::OnBnClickedCancel()
 
 void CBRIGHTNESSDLG::OnBnClickedOk()
 {
-	// note: 处理可能的未写入更新
-	this->OnEnKillfocusBrightnessEditBrightness();
-	this->OnEnKillfocusBrightnessEditContrast();
-
 	CImgProcDoc* pDoc = (CImgProcDoc*)((CMainFrame*)AfxGetMainWnd())->MDIGetActive()->GetActiveView()->GetDocument();
 	CImgProcApp* pApp = (CImgProcApp*)AfxGetApp();
 	pDoc->BrightnessContrast(pApp->GetTransDoc(), this->brightnessModifier, this->contrastMultiplier);

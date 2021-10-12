@@ -46,10 +46,6 @@ END_MESSAGE_MAP()
 void CMEDIANFILTERDLG::OnBnClickedOk()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	// note: 处理可能的未写入更新
-	this->OnEnKillfocusMedianfilterEditCenterw();
-	this->OnEnKillfocusMedianfilterEditWndlen();
-
 	CImgProcDoc* pDoc = (CImgProcDoc*)((CMainFrame*)AfxGetMainWnd())->MDIGetActive()->GetActiveView()->GetDocument();
 	CImgProcApp* pApp = (CImgProcApp*)AfxGetApp();
 	pDoc->ImageMedianFiltering(pApp->GetTransDoc(), this->radius, this->centerWeight);

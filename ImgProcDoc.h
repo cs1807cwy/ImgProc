@@ -104,11 +104,7 @@ public:
 	void ImageInterpolation(CImgProcDoc& newDoc, double factor_w, double factor_h, INTERPOLATION_MODE nMethod);
 	void ImageMedianFiltering(CImgProcDoc& newDoc, DWORD radius, double cenw);
 	void ImageGaussianSmoothing(CImgProcDoc& newDoc, double sigma);
-	void ImageHistogramEqualization(CImgProcDoc& newDoc);
-	void ImageSharpening(CImgProcDoc& newDoc, double reserve, double enhance,
-		const std::vector<std::vector<double>>& optx, const std::vector<std::vector<double>>& opty);
-	void ImageBilateralFiltering(CImgProcDoc& newDoc, double sigma_d, double sigma_r);
-	void ImageAddImpluseNoise(CImgProcDoc& newDoc, double dutyPercentage, bool binaryzation);
+	void HistogramEqualization(CImgProcDoc& newDoc);
 
 	afx_msg void OnImageprocessingSavetonewbmpfile();
 	afx_msg void OnImageprocessingDispplayfileheader();

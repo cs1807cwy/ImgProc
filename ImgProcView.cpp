@@ -26,9 +26,6 @@
 #include "CMEDIANFILTERDLG.h"
 #include "CGAUSSIANSMOOTHDLG.h"
 #include "CBRIGHTNESSDLG.h"
-#include "CSHARPENINGDLG.h"
-#include "CBILATERALFILTERDLG.h"
-#include "CADDIMPLUSENOISEDLG.h"
 
 
 // CImgProcView
@@ -58,12 +55,6 @@ BEGIN_MESSAGE_MAP(CImgProcView, CView)
 	ON_UPDATE_COMMAND_UI(ID_IMAGEPROCESSING_HISTOGRAMEQUALIZATION, &CImgProcView::OnUpdateImageprocessingHistogramequalization)
 	ON_COMMAND(ID_IMAGEPROCESSING_HISTOGRAMEQUALIZATION, &CImgProcView::OnImageprocessingHistogramequalization)
 	ON_COMMAND(ID_INSPECTION_BRIGHTNESS, &CImgProcView::OnInspectionBrightness)
-	ON_UPDATE_COMMAND_UI(ID_IMAGEPROCESSING_SHARPENINGBYGRADIENT, &CImgProcView::OnUpdateImageprocessingSharpeningbygradient)
-	ON_COMMAND(ID_IMAGEPROCESSING_SHARPENINGBYGRADIENT, &CImgProcView::OnImageprocessingSharpeningbygradient)
-	ON_UPDATE_COMMAND_UI(ID_IMAGEPROCESSING_BILATERALFILTERING, &CImgProcView::OnUpdateImageprocessingBilateralfiltering)
-	ON_COMMAND(ID_IMAGEPROCESSING_BILATERALFILTERING, &CImgProcView::OnImageprocessingBilateralfiltering)
-	ON_UPDATE_COMMAND_UI(ID_IMAGEPROCESSING_ADDIMPULSENOISE, &CImgProcView::OnUpdateImageprocessingAddimpulsenoise)
-	ON_COMMAND(ID_IMAGEPROCESSING_ADDIMPULSENOISE, &CImgProcView::OnImageprocessingAddimpulsenoise)
 END_MESSAGE_MAP()
 
 // CImgProcView 构造/析构
@@ -460,7 +451,7 @@ void CImgProcView::OnImageprocessingHistogramequalization()
 	// TODO: 在此添加命令处理程序代码
 	CImgProcApp* pApp = (CImgProcApp*)AfxGetApp();
 	CImgProcDoc* pDoc = (CImgProcDoc*)this->GetDocument();
-	pDoc->ImageHistogramEqualization(pApp->GetTransDoc());
+	pDoc->HistogramEqualization(pApp->GetTransDoc());
 	pApp->ManualFileNew();
 }
 
@@ -470,49 +461,4 @@ void CImgProcView::OnInspectionBrightness()
 	// TODO: 在此添加命令处理程序代码
 	CBRIGHTNESSDLG brightnessDlg;
 	brightnessDlg.DoModal();
-}
-
-
-void CImgProcView::OnUpdateImageprocessingSharpeningbygradient(CCmdUI* pCmdUI)
-{
-	// TODO: 在此添加命令更新用户界面处理程序代码
-	pCmdUI->Enable(GetDocument()->GetColorBits() == 8);
-}
-
-
-void CImgProcView::OnImageprocessingSharpeningbygradient()
-{
-	// TODO: 在此添加命令处理程序代码
-	CSHARPENINGDLG sharpeningDlg;
-	sharpeningDlg.DoModal();
-}
-
-
-void CImgProcView::OnUpdateImageprocessingBilateralfiltering(CCmdUI* pCmdUI)
-{
-	// TODO: 在此添加命令更新用户界面处理程序代码
-	pCmdUI->Enable(GetDocument()->GetColorBits() == 8);
-}
-
-
-void CImgProcView::OnImageprocessingBilateralfiltering()
-{
-	// TODO: 在此添加命令处理程序代码
-	CBILATERALFILTERDLG bilateralFilteringDlg;
-	bilateralFilteringDlg.DoModal();
-}
-
-
-void CImgProcView::OnUpdateImageprocessingAddimpulsenoise(CCmdUI* pCmdUI)
-{
-	// TODO: 在此添加命令更新用户界面处理程序代码
-	pCmdUI->Enable(GetDocument()->GetColorBits() == 8);
-}
-
-
-void CImgProcView::OnImageprocessingAddimpulsenoise()
-{
-	// TODO: 在此添加命令处理程序代码
-	CADDIMPLUSENOISEDLG addImpluseNoiseDlg;
-	addImpluseNoiseDlg.DoModal();
 }
