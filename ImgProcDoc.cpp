@@ -1282,6 +1282,138 @@ void CImgProcDoc::ImageAddImpluseNoise(CImgProcDoc& newDoc, double dutyPercentag
 	}
 }
 
+// note: Canny边缘检测
+// sigma: 高斯滤波器方差
+// thl: 边缘低阈值
+// thh: 边缘高阈值
+void CImgProcDoc::ImageCannyEdgeDetection(CImgProcDoc& newDoc, double sigma, double thl, double thh)
+{
+	ASSERT(&newDoc != this);
+	newDoc.Clear();
+	ASSERT(0 <= thl && thl <= thh && thh < 255);
+
+	// step 1: 转换为灰度图
+	CImgProcDoc greyCodingDoc;
+	this->CodingGrey(greyCodingDoc);
+
+	// step 2: 高斯滤波 Gaussian smoothing
+	CImgProcDoc smoothDoc;
+	greyCodingDoc.ImageGaussianSmoothing(smoothDoc, sigma);
+
+	// step 3: 计算梯度模和方向角
+	// note: Sobel 算子
+	//double optx[3][3] = { {-1.0 / 4.0,0,1.0 / 4.0},{-2.0 / 4.0,0,2.0 / 4.0},{-1.0 / 4.0,0,1.0 / 4.0} };
+	//double opty[3][3] = { {-1.0 / 4.0,-2.0 / 4.0,-1.0 / 4.0},{0,0,0},{1.0 / 4.0,2.0 / 4.0,1.0 / 4.0} };
+	double optx[3][3] = { {-1.0,0,1.0},{-2.0,0,2.0},{-1.0,0,1.0} };
+	double opty[3][3] = { {-1.0,-2.0,-1.0},{0,0,0},{1.0,2.0,1.0} };
+
+	std::vector<std::vector<double>> magnitude(smoothDoc.bmpInfo.biHeight, std::vector<double>(smoothDoc.bmpInfo.biWidth, 0.0)),
+		slope = magnitude;
+	for (LONG y = 1; y < smoothDoc.bmpInfo.biHeight - 1; ++y)
+	{
+		for (LONG x = 1; x < smoothDoc.bmpInfo.biWidth - 1; ++x)
+		{
+			// note: 计算梯度
+			double diffx = 0.0, diffy = 0.0;
+			for (int ty = 0; ty < 3; ++ty)
+			{
+				for (int tx = 0; tx < 3; ++tx)
+				{
+					RGBQUAD trgb; smoothDoc.GetPixel(x + tx - 1, y + ty - 1, &trgb);
+					diffx += (double)trgb.rgbRed * optx[ty][tx];
+					diffy += (double)trgb.rgbRed * opty[ty][tx];
+				}
+			}
+			double detDiff = sqrt(diffx * diffx + diffy * diffy);
+			double k_yx = diffy / diffx;
+			magnitude[y][x] = detDiff; slope[y][x] = k_yx;
+		}
+	}
+
+	// step 4: 非极大值抑制
+	for (size_t y = 1; y < magnitude.size() - 1; ++y)
+	{
+		for (size_t x = 1; x < magnitude[y].size() - 1; ++x)
+		{
+			// note: 计算左边界的交点
+			double pre_x = (double)x - 1.0 / slope[y][x]; // 上边界交点 (pre_x, y - 1)
+			double pre_y = (double)y - slope[y][x]; // 左边界交点 (x - 1, pre_y)
+			double dTmp1 = 0.0, dTmp2 = 0.0;
+			
+			// note: 如果交于左边界上段
+			if ((double)(y - 1) <= pre_y && pre_y <= (double)(y))
+			{
+				dTmp1 = ((double)y - pre_y) * magnitude[y - 1][x - 1] + (1.0 - (double)y + pre_y) * magnitude[y][x - 1];
+				pre_y = (double)y + slope[y][x]; // 右边界下段交点 (x + 1, pre_y)
+				dTmp2 = (pre_y - (double)y) * magnitude[y + 1][x + 1] + (1.0 - pre_y + (double)y) * magnitude[y][x + 1];
+			}
+			// 如果交于左边界下段
+			else if ((double)(y) < pre_y && pre_y <= (double)(y + 1))
+			{
+				dTmp1 = (pre_y - (double)y) * magnitude[y + 1][x - 1] + (1.0 - pre_y + (double)y) * magnitude[y][x - 1];
+				pre_y = (double)y + slope[y][x]; // 右边界上段交点 (x + 1, pre_y)
+				dTmp2 = ((double)y - pre_y) * magnitude[y - 1][x + 1] + (1.0 - (double)y + pre_y) * magnitude[y][x + 1];
+			}
+			// 如果交于上边界左段
+			else if ((double)(x - 1) < pre_x && pre_x <= (double)(x))
+			{
+				dTmp1 = ((double)x - pre_x) * magnitude[y - 1][x - 1] + (1.0 - (double)x + pre_x) * magnitude[y - 1][x];
+				pre_x = (double)x + 1.0 / slope[y][x]; // 下边界右段交点 (pre_x, y + 1)
+				dTmp2 = (pre_x - (double)x) * magnitude[y + 1][x + 1] + (1.0 - pre_x + (double)x) * magnitude[y + 1][x];
+			}
+			// 否则交于上边界右段
+			else
+			{
+				dTmp1 = (pre_x - (double)x) * magnitude[y - 1][x + 1] + (1.0 - pre_x + (double)x) * magnitude[y - 1][x];
+				pre_x = (double)x + 1.0 / slope[y][x]; // 下边界左段交点 (pre_x, y + 1)
+				dTmp2 = ((double)x - pre_x) * magnitude[y + 1][x - 1] + (1.0 - (double)x + pre_x) * magnitude[y + 1][x];
+			}
+
+			// note: 去除非极大值点
+			if (magnitude[y][x] < dTmp1 || magnitude[y][x] < dTmp2) { magnitude[y][x] = 0.0; }
+		}
+	}
+
+	// step 5: 双阈值边界跟踪
+	newDoc.bmpHead = smoothDoc.bmpHead;
+	newDoc.bmpInfo = smoothDoc.bmpInfo;
+	newDoc.palette = smoothDoc.palette;
+	newDoc.pixelData.resize(smoothDoc.pixelData.size(), 0);
+	// note: 遍历标记
+	std::vector<std::vector<bool>> tag(smoothDoc.bmpInfo.biHeight, std::vector<bool>(smoothDoc.bmpInfo.biWidth, false));
+	for (size_t y = 1; y < tag.size() - 1; ++y)
+	{
+		for (size_t x = 1; x < tag[y].size() - 1; ++x)
+		{
+			if (!tag[y][x] && magnitude[y][x] >= thh)
+			{
+				DFSEdgeTraceAndSet(newDoc, magnitude, tag, (LONG)x, (LONG)y, thl);
+			}
+		}
+	}
+}
+
+void CImgProcDoc::DFSEdgeTraceAndSet(CImgProcDoc& newDoc,
+	std::vector<std::vector<double>>& magnitude,
+	std::vector<std::vector<bool>>& tag,
+	LONG x, LONG y, double thl)
+{
+	if (y < 0 || y >= newDoc.bmpInfo.biHeight ||
+		x < 0 || x >= newDoc.bmpInfo.biWidth || tag[y][x] || magnitude[y][x] < thl) {
+		return;
+	}
+	newDoc.SetPixel(x, y, RGBQUAD{ 255,255,255,0 });
+	tag[y][x] = true;
+	DFSEdgeTraceAndSet(newDoc, magnitude, tag, x - 1, y - 1, thl);
+	DFSEdgeTraceAndSet(newDoc, magnitude, tag, x    , y - 1, thl);
+	DFSEdgeTraceAndSet(newDoc, magnitude, tag, x + 1, y - 1, thl);
+	DFSEdgeTraceAndSet(newDoc, magnitude, tag, x - 1, y    , thl);
+	DFSEdgeTraceAndSet(newDoc, magnitude, tag, x + 1, y    , thl);
+	DFSEdgeTraceAndSet(newDoc, magnitude, tag, x - 1, y + 1, thl);
+	DFSEdgeTraceAndSet(newDoc, magnitude, tag, x    , y + 1, thl);
+	DFSEdgeTraceAndSet(newDoc, magnitude, tag, x + 1, y + 1, thl);
+}
+
 
 void CImgProcDoc::DisplayHeaderMessage()
 {

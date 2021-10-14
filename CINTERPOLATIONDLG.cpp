@@ -72,8 +72,8 @@ void CINTERPOLATIONDLG::OnBnClickedOk()
 		|| fy <= 0.0 || isnan(fy) || isinf(fy) || fy > 100.0)
 	{
 		AfxMessageBox(_T("Invalid Factor(s)"));
-		m_edit_fx.SetWindowText(_T("1.0"));
-		m_edit_fy.SetWindowText(_T("1.0"));
+		m_edit_fx.SetWindowText(_T("2.0"));
+		m_edit_fy.SetWindowText(_T("2.0"));
 	}
 	else
 	{
@@ -111,8 +111,8 @@ BOOL CINTERPOLATIONDLG::OnInitDialog()
 	CDialogEx::OnInitDialog();
 
 	// TODO:  在此添加额外的初始化
-	m_edit_fx.SetWindowText(_T("1.0"));
-	m_edit_fy.SetWindowText(_T("1.0"));
+	m_edit_fx.SetWindowText(_T("2.0"));
+	m_edit_fy.SetWindowText(_T("2.0"));
 	this->m_split_sel.SetWindowText(CINTERPOLATIONDLG::MODENAME[MODE::NEAREST]);
 	this->modeSel = CINTERPOLATIONDLG::MODE::NEAREST;
 

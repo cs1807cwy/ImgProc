@@ -71,6 +71,7 @@ public:
 	afx_msg void OnImageprocessingBilateralfiltering();
 	afx_msg void OnUpdateImageprocessingAddimpulsenoise(CCmdUI* pCmdUI);
 	afx_msg void OnImageprocessingAddimpulsenoise();
+	afx_msg void OnImageprocessingCannyedgedetection();
 };
 
 #ifndef _DEBUG  // ImgProcView.cpp 中的调试版本

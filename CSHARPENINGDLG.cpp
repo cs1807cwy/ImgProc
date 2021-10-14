@@ -15,8 +15,8 @@ IMPLEMENT_DYNAMIC(CSHARPENINGDLG, CDialogEx)
 CSHARPENINGDLG::CSHARPENINGDLG(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_SHARPENING, pParent)
 {
-	this->reserve = 1.0;
-	this->enhance = 0.0;
+	this->reserve = 0.4;
+	this->enhance = 1.0;
 	this->opt = OPERATOR::PIXELDIFF;
 	m_split_opt.SetDropDownMenu(IDR_SHARPENING_OPERATOR_MENU, 0);
 }
@@ -99,8 +99,8 @@ BOOL CSHARPENINGDLG::OnInitDialog()
 	CDialogEx::OnInitDialog();
 
 	// TODO:  在此添加额外的初始化
-	this->reserve = 1.0;
-	this->enhance = 0.0;
+	this->reserve = 0.4;
+	this->enhance = 1.0;
 	this->opt = OPERATOR::PIXELDIFF;
 	CString sr;
 	sr.Format(_T("%.2lf"), this->reserve);

@@ -96,6 +96,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
+      <StackReserveSize>1099511627776</StackReserveSize>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -118,6 +119,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
+      <StackReserveSize>1099511627776</StackReserveSize>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -144,6 +146,7 @@
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <StackReserveSize>1099511627776</StackReserveSize>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -170,6 +173,7 @@
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <StackReserveSize>1099511627776</StackReserveSize>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -186,6 +190,7 @@
     <ClInclude Include="CADDIMPLUSENOISEDLG.h" />
     <ClInclude Include="CBILATERALFILTERDLG.h" />
     <ClInclude Include="CBRIGHTNESSDLG.h" />
+    <ClInclude Include="CCANNYEDGEDETECDLG.h" />
     <ClInclude Include="CGAUSSIANSMOOTHDLG.h" />
     <ClInclude Include="CGETPIXELDLG.h" />
     <ClInclude Include="ChildFrm.h" />
@@ -209,6 +214,7 @@
     <ClCompile Include="CADDIMPLUSENOISEDLG.cpp" />
     <ClCompile Include="CBILATERALFILTERDLG.cpp" />
     <ClCompile Include="CBRIGHTNESSDLG.cpp" />
+    <ClCompile Include="CCANNYEDGEDETECDLG.cpp" />
     <ClCompile Include="CGAUSSIANSMOOTHDLG.cpp" />
     <ClCompile Include="CGETPIXELDLG.cpp" />
     <ClCompile Include="ChildFrm.cpp" />

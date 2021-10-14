@@ -29,6 +29,7 @@
 #include "CSHARPENINGDLG.h"
 #include "CBILATERALFILTERDLG.h"
 #include "CADDIMPLUSENOISEDLG.h"
+#include "CCANNYEDGEDETECDLG.h"
 
 
 // CImgProcView
@@ -64,6 +65,7 @@ BEGIN_MESSAGE_MAP(CImgProcView, CView)
 	ON_COMMAND(ID_IMAGEPROCESSING_BILATERALFILTERING, &CImgProcView::OnImageprocessingBilateralfiltering)
 	ON_UPDATE_COMMAND_UI(ID_IMAGEPROCESSING_ADDIMPULSENOISE, &CImgProcView::OnUpdateImageprocessingAddimpulsenoise)
 	ON_COMMAND(ID_IMAGEPROCESSING_ADDIMPULSENOISE, &CImgProcView::OnImageprocessingAddimpulsenoise)
+	ON_COMMAND(ID_IMAGEPROCESSING_CANNYEDGEDETECTION, &CImgProcView::OnImageprocessingCannyedgedetection)
 END_MESSAGE_MAP()
 
 // CImgProcView 构造/析构
@@ -515,4 +517,12 @@ void CImgProcView::OnImageprocessingAddimpulsenoise()
 	// TODO: 在此添加命令处理程序代码
 	CADDIMPLUSENOISEDLG addImpluseNoiseDlg;
 	addImpluseNoiseDlg.DoModal();
+}
+
+
+void CImgProcView::OnImageprocessingCannyedgedetection()
+{
+	// TODO: 在此添加命令处理程序代码
+	CCANNYEDGEDETECDLG cannyEdgeDetectionDlg;
+	cannyEdgeDetectionDlg.DoModal();
 }

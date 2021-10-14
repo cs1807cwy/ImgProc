@@ -84,6 +84,9 @@
     <ClInclude Include="CADDIMPLUSENOISEDLG.h">
       <Filter>头文件\Dialog</Filter>
     </ClInclude>
+    <ClInclude Include="CCANNYEDGEDETECDLG.h">
+      <Filter>头文件\Dialog</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ImgProc.cpp">
@@ -138,6 +141,9 @@
       <Filter>源文件\Dialog</Filter>
     </ClCompile>
     <ClCompile Include="CADDIMPLUSENOISEDLG.cpp">
+      <Filter>源文件\Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="CCANNYEDGEDETECDLG.cpp">
       <Filter>源文件\Dialog</Filter>
     </ClCompile>
   </ItemGroup>

@@ -32,7 +32,6 @@ protected:
 	bool SaveDIB(CString strBmpFile);
 	void DisplayHeaderMessage();
 
-
 // 重写
 public:
 	virtual BOOL OnNewDocument();
@@ -58,6 +57,10 @@ public:
 #endif
 
 protected:
+	void DFSEdgeTraceAndSet(CImgProcDoc& newDoc,
+		std::vector<std::vector<double>>& magnitude,
+		std::vector<std::vector<bool>>& tag,
+		LONG x, LONG y, double thl);
 
 // 生成的消息映射函数
 protected:
@@ -109,6 +112,7 @@ public:
 		const std::vector<std::vector<double>>& optx, const std::vector<std::vector<double>>& opty);
 	void ImageBilateralFiltering(CImgProcDoc& newDoc, double sigma_d, double sigma_r);
 	void ImageAddImpluseNoise(CImgProcDoc& newDoc, double dutyPercentage, bool binaryzation);
+	void ImageCannyEdgeDetection(CImgProcDoc& newDoc, double sigma, double thl, double thh);
 
 	afx_msg void OnImageprocessingSavetonewbmpfile();
 	afx_msg void OnImageprocessingDispplayfileheader();
