@@ -379,7 +379,7 @@ int CImgProcDoc::MapRGB24ToPalette(const RGBQUAD& rgb, std::vector<RGBQUAD>& plt
 //   对 灰度值 不进行颜色索引
 //	 返回: >=0 表示象素在位图数据中的偏移值
 //				 <0 失败或参数无效
-long CImgProcDoc::GetPixel(LONG x, LONG y, RGBQUAD rgb[1], bool bGray[1])
+LONG CImgProcDoc::GetPixel(LONG x, LONG y, RGBQUAD rgb[1], bool bGray[1])
 {
 	WORD  nColorBits = GetColorBits();
 	LONG  nImageHeight = GetImageHeight();
@@ -938,7 +938,7 @@ void CImgProcDoc::ImageGaussianSmoothing(CImgProcDoc& newDoc, double sigma)
 	newDoc.palette = this->palette;
 	newDoc.pixelData.resize(this->pixelData.size());
 
-	DWORD radius = (DWORD)sigma + 1;
+	DWORD radius = (DWORD)(3.0 * sigma) + 1;
 	DWORD size = (radius << 1) - 1;
 
 	// note: 构造默认权重矩阵（size * size）

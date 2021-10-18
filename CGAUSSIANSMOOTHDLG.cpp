@@ -69,10 +69,10 @@ BOOL CGAUSSIANSMOOTHDLG::OnInitDialog()
 
 	// TODO:  在此添加额外的初始化
 	this->sigma = 1.0;
-	this->radius = (DWORD)this->sigma + 1;
+	this->radius = (DWORD)(3.0 * this->sigma) + 1;
 	this->m_edit_sigma.SetWindowText(_T("1.0"));
 	// note: 显示窗口大小
-	this->m_title_size.SetWindowText(_T("3x3"));
+	this->m_title_size.SetWindowText(_T("7x7"));
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 								// 异常: OCX 属性页应返回 FALSE
@@ -85,7 +85,7 @@ void CGAUSSIANSMOOTHDLG::OnEnKillfocusGaussiansmoothEditSigma()
 	CString sr;
 	this->m_edit_sigma.GetWindowText(sr);
 	this->sigma = min(CGAUSSIANSMOOTHDLG::SIGMAMAX, abs(_ttof(sr)));
-	this->radius = (DWORD)this->sigma + 1;
+	this->radius = (DWORD)(3.0 * this->sigma) + 1;
 	sr.Format(_T("%.2lf"), this->sigma);
 	this->m_edit_sigma.SetWindowText(sr);
 	// note: 显示窗口大小
